@@ -1,0 +1,9 @@
+applications:
+-  name: perishable-management-services
+   path: target/perishables-management-0.0.1-SNAPSHOT.war
+   
+   memory: 768M
+   random-route: false
+   services:
+   - Perishable_Management
+   
