@@ -10,7 +10,7 @@ import lombok.Data;
 public abstract class CommonPostfix {
 
 	@Column(name = "CREATED_BY")
-	private String createdBy;
+	private String  createdBy;
 
 	@Column(name = "CREATED_AT")
 	private Long createdAt;
