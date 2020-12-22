@@ -1,22 +1,22 @@
 package com.incture.dos;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 
 @Data
 @Entity
 @Table(name = "ZINVENTORY")
+@EqualsAndHashCode(callSuper = false)
+@IdClass(Zinventory.class)
 public class Zinventory extends Zinvencomposite
 {
 	@Id

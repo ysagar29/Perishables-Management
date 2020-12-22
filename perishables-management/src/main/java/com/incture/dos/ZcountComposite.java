@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 public class ZcountComposite implements Serializable 
 {
-    private String ArticleNumber;
+    private String articleNumber;
     
-	private String Plant;
+	private String plant;
 	
 
 }

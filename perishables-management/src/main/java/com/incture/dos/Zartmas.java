@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -12,6 +13,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "ZARTMAS")
+//@IdClass(Zartmas.class)
 public class Zartmas 
 {
 	@Id

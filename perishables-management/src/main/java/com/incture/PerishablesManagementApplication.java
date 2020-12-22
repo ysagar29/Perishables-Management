@@ -20,6 +20,7 @@ public class PerishablesManagementApplication extends SpringBootServletInitializ
 
 	public static void main(String[] args) {
 		SpringApplication.run(PerishablesManagementApplication.class, args);
+
 	}
 
 	@Override
@@ -32,7 +33,7 @@ public class PerishablesManagementApplication extends SpringBootServletInitializ
 		return new ModelMapper();
 	}
 
-	@Bean
+/*	@Bean
 	@Primary
 	public DataSource dataSource(@Value("${vcap.services.Perishable_Management.credentials.url}") final String url,
 			@Value("${vcap.services.Perishable_Management.credentials.user}") final String user,
@@ -42,5 +43,48 @@ public class PerishablesManagementApplication extends SpringBootServletInitializ
 				.build();
 		return dataSource;
 	}
+*/
+	
+
+
+@Bean
+@Primary
+public DataSource dataSource() 
+{
+    return DataSourceBuilder
+        .create()
+        .username("PERISHABLE_MANAGEMENT")
+        .password("Sq3A09Zw5NOlWz8dzryY1J2_mvmXwJJKh0REBknMUSdq5-N8hE23DjFurH6JwKkeoQtnBxGuM.f2APteyFtU39ZDegixxZ9Z4JKp-f25NhRlt5JfuVA88iod8Zyj.61n")
+        .url("jdbc:sap://zeus.hana.prod.eu-central-1.whitney.dbaas.ondemand.com:24458?encrypt=true&validateCertificate=true&currentschema=PERISHABLE_MANAGEMENT")
+        .driverClassName("com.sap.db.jdbc.Driver")
+        .build();
+}
+
+
+
+
+
+
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
