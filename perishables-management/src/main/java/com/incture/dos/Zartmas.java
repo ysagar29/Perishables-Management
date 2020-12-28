@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -40,5 +41,9 @@ public class Zartmas
 	
 	@Column(name = "PERIOD_INDIC_SHELFLIFE_DATE")
 	private char periodIndicatorShelfLifeExpDate;
+	
+	@Lob
+	@Column(name = "PRODUCT_IMAGE")
+	private byte[] productImage;
 	
 }

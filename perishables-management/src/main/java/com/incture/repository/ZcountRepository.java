@@ -11,6 +11,7 @@ public interface ZcountRepository extends JpaRepository<Zcount, ZcountComposite>
 {
 public List<Zcount> findByplant(String plant);
 public List<Zcount> findByarticleNumber(String articleNumber);
+public List<Zcount> findByArticleNumberAndPeriod(String articleNumber,String period);
 
 
 public String deleteByplant(String plant);

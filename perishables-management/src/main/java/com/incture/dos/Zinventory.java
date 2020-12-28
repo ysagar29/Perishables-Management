@@ -19,6 +19,11 @@ import lombok.EqualsAndHashCode;
 @IdClass(Zinventory.class)
 public class Zinventory extends Zinvencomposite
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@Column(name = "ARTICLE_NUMBER")
 	private String articleNumber;
@@ -35,7 +40,7 @@ public class Zinventory extends Zinvencomposite
 	private BigDecimal stndPrice;
 	
 	@Column(name = "PRICE_UNIT")
-	private BigDecimal priceUnit;
+	private String  priceUnit;
 	
 	@Column(name = "CURRENT_PERIOD")
 	private int currPeriod;

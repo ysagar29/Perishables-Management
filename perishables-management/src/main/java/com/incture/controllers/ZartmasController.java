@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,9 +29,9 @@ public class ZartmasController
 		services.saveOrUpdate(zartmas);
 	}
 
-	@GetMapping("/findById/{id}")
-	public Optional<Zartmas> findById(@PathVariable String id) {
-		return services.findById(id);
+	@GetMapping("/findById/{id}&{currentWeight}&{plant}&{storageLoc}")
+	public ResponseEntity<? > findById(@PathVariable String id, @PathVariable String currentWeight,@PathVariable String plant,@PathVariable String storageLoc) {
+		return services.findProductDetailsAndUpdateZinventory(id, currentWeight, plant, storageLoc);
 	}
 
 	@DeleteMapping("/deleteById/{id}")
@@ -41,6 +42,16 @@ public class ZartmasController
 	@GetMapping("/list")
 	public List<Zartmas> listAll() {
 		return services.listAll();
+	}
+	
+	@GetMapping("/caseFillUp/{articleNumber}&{plant}&{storageLocation}&{totalValuatedStock}&{totalWeight}&{valueOfTotalValuatedStock}")
+	public ResponseEntity<?> caseFillUp(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalValuatedStock,@PathVariable String totalWeight,@PathVariable String valueOfTotalValuatedStock){
+		return services.caseFillUp(articleNumber, plant, storageLocation, totalValuatedStock, totalWeight, valueOfTotalValuatedStock);
+	}
+	
+	@GetMapping("/caseFillUp/{articleNumber}&{plant}&{storageLocation}&{totalValuatedStock}&{totalWeight}&{valueOfTotalValuatedStock}")
+	public ResponseEntity<?> repackArticle(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalValuatedStock,@PathVariable String totalWeight,@PathVariable String valueOfTotalValuatedStock){
+		return services.repackArticle(articleNumber, plant, storageLocation, totalWeight);
 	}
 
 }

@@ -37,7 +37,7 @@ public class Zcount  extends ZcountComposite
 	private String period;
 	
 	@Column(name = "Time")
-	private int time;
+	private String time;
 	
 	@Column(name = "UNITTIME")
 	private int unitTime;
@@ -73,5 +73,11 @@ public class Zcount  extends ZcountComposite
 	private int unitQty;
 	
 	@Column(name = "REPLEN_INDICATOR")
-	private char replenIndicator;
+	private String replenIndicator;
+	
+	@Column(name = "STORAGE_LOCATION")
+	private String storageLocation;
+	
+	@Column(name =  "REPLEN_REQ_QTY")
+	private int replenRequiredQuantity;
 }

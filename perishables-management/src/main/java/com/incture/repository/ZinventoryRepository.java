@@ -13,6 +13,7 @@ public interface ZinventoryRepository extends JpaRepository<Zinventory, Zinvenco
 	public List<Zinventory> findByarticleNumber(String artcielNumber);
 	public List<Zinventory> findByplant(String plant);
 	public List<Zinventory> findBystorageLoc(String storageLoc);
+	public  List<Zinventory> findByArticleNumberAndPlantAndStorageLoc(String artcielNumber,String plant,String storageLoc);
 	
 	public String deleteByarticleNumber(String artcielNumber);
 	public String deleteByplant(String plant);

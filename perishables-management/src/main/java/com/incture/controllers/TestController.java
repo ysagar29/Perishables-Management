@@ -7,12 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/test")
 public class TestController {
 
-	@GetMapping("/test")
+	@GetMapping("/")
 	public String testDate() {
-		return "Current time : " + new Date().toString();
+		return "Perishable Management - Current time : " + new Date().toString();
 	}
 
 }
