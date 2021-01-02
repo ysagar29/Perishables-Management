@@ -3,8 +3,6 @@ package com.incture.dos;
 import java.math.BigDecimal;
 
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -15,12 +13,10 @@ import lombok.EqualsAndHashCode;
 
 
 @Data
-@Embeddable
 @Entity
 @Table(name = "ZINVENTORY")
 @EqualsAndHashCode(callSuper = false)
 @IdClass(Zinventory.class)
-//@EmbeddedId
 public class Zinventory extends Zinvencomposite
 {
 	/**
@@ -60,7 +56,7 @@ public class Zinventory extends Zinvencomposite
 	
 	@Column(name = "TOTAL_WEIGHT")
 	private BigDecimal totWeight;
-
+	
 	@Column(name = "UNIT_OF_WEIGHT")
 	private int unitWeight;
 	

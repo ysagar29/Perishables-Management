@@ -42,9 +42,6 @@ public class Zartmas
 	@Column(name = "PERIOD_INDIC_SHELFLIFE_DATE")
 	private char periodIndicatorShelfLifeExpDate;
 	
-	@Column(name="MATERIALGROUPDESC")
-	private String materialGroupDesc;
-	
 	@Lob
 	@Column(name = "PRODUCT_IMAGE")
 	private byte[] productImage;
