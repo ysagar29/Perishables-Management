@@ -2,6 +2,9 @@ package com.incture.response;
 
 import java.util.List;
 
+
+
+
 public class ItemResponse {
 
 	List<ItemDetailsResponse> itemdetails;
