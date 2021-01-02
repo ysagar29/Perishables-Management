@@ -1,16 +1,13 @@
 package com.incture.dos;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.Time;
 import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -38,6 +35,9 @@ public class Zcount  extends ZcountComposite
 	
 	@Column(name = "Time")
 	private String time;
+	
+	//@Column(name="Times")
+	//private String times;
 	
 	@Column(name = "UNITTIME")
 	private int unitTime;

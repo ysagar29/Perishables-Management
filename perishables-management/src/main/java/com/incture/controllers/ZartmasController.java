@@ -1,7 +1,6 @@
 package com.incture.controllers;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.incture.dos.Zartmas;
-import com.incture.dos.Zinventory;
+import com.incture.response.ItemResponse;
+import com.incture.response.ZartmasResponseWO;
 import com.incture.service.ZartmasService;
 
 @RestController
@@ -40,7 +40,7 @@ public class ZartmasController
 	}
 
 	@GetMapping("/list")
-	public List<Zartmas> listAll() {
+	public List<Zartmas > listAll() {
 		return services.listAll();
 	}
 	
@@ -49,9 +49,30 @@ public class ZartmasController
 		return services.caseFillUp(articleNumber, plant, storageLocation, totalValuatedStock, totalWeight, valueOfTotalValuatedStock);
 	}
 	
-	@GetMapping("/caseFillUp/{articleNumber}&{plant}&{storageLocation}&{totalValuatedStock}&{totalWeight}&{valueOfTotalValuatedStock}")
-	public ResponseEntity<?> repackArticle(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalValuatedStock,@PathVariable String totalWeight,@PathVariable String valueOfTotalValuatedStock){
+	
+	@GetMapping("/repack/{articleNumber}&{plant}&{storageLocation}&{totalWeight}")//&{valueOfTotalValuatedStock}")
+	public ResponseEntity<?> repackArticle(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){  //,@PathVariable String valueOfTotalValuatedStock){
 		return services.repackArticle(articleNumber, plant, storageLocation, totalWeight);
 	}
+	
+	
+	//repack and destroy article
+	/*@GetMapping("/Repack/{articleNumber}&{plant}&{storageLocation}&{totalWeight}")
+	public ResponseEntity<?> repackArticle1(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){
+		return services.repackArticle(articleNumber, plant, storageLocation, totalWeight);
+	}*/
+	
+	
+	@GetMapping("/DestroyDiscardReturn/{articleNumber}&{plant}&{storageLocation}&{totalWeight}")
+	public ResponseEntity<String> DestroyDiscardReturn(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){
+		return services.destroyDiscardReturnArticle(articleNumber, plant, storageLocation, totalWeight);
+	}
+	
+
+	@GetMapping("itemdetails/{articleNumber}")
+	public ItemResponse Items(@PathVariable String articleNumber){//, @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){
+		return services.getItemDetails(articleNumber);//, plant, storageLocation, totalWeight);
+	}
+	
 
 }
