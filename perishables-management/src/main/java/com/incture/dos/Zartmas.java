@@ -50,3 +50,5 @@ public class Zartmas
 	private byte[] productImage;
 	
 }
+
+

@@ -1,14 +1,7 @@
 package com.incture.service;
 
-import java.awt.image.BufferedImage;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.math.BigDecimal;
-import java.nio.file.Paths;
-import java.sql.Blob;
-import java.sql.PreparedStatement;
+import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -16,24 +9,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import javax.imageio.ImageIO;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.sql.rowset.serial.SerialBlob;
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.transaction.Transactional;
 
-import org.jboss.jandex.Main;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.incture.dos.Zartmas;
 import com.incture.dos.Zcount;
@@ -43,6 +26,8 @@ import com.incture.repository.ZartmasRepository;
 import com.incture.repository.ZcountRepository;
 import com.incture.repository.ZinventoryRepository;
 import com.incture.repository.ZvendRepository;
+import com.incture.response.CategoryDetailsResponse;
+import com.incture.response.CategoryResponse;
 import com.incture.response.ItemDetailsResponse;
 import com.incture.response.ItemResponse;
 import com.incture.utils.PersishableManagementConstants;
@@ -236,18 +221,18 @@ public class ZartmasService implements ZartmasServiceInterface
 	
     public static int setPeriodBasedOnScannedDate(Date scannedDate){
     	
-    	/*SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy hh.mm.ss.S aa");
+    	SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy hh.mm.ss.S aa");
 		String formattedDate = dateFormat.format(scannedDate).toString();
-		System.err.println(formattedDate);*/
-	//   System.err.println("scannedDate "+scannedDate);
+		System.err.println(formattedDate);
+	 System.err.println("scannedDate "+scannedDate);
 		LocalTime localTime = LocalTime.now();
 		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
-//		System.err.println(localTime.format(dateTimeFormatter).substring(6));
+	System.err.println(localTime.format(dateTimeFormatter).substring(6));
 		String timePeriod = localTime.format(dateTimeFormatter).substring(6);
 		    String hours   = localTime.format(dateTimeFormatter).substring(0,2);
-	//	System.err.println("hours "+hours);
+		System.err.println("hours "+hours);
 		int currentHour = Integer.parseInt(hours);
-    	// if scanned date is more than 6 than see the differenece in the value. 
+    	 //if scanned date is more than 6 than see the differenece in the value. 
    if(timePeriod.equals("AM")){
 	   if(currentHour==PersishableManagementConstants.initialPointOfPeriod){
 		 return  PersishableManagementConstants.initialPeriodcounter;
@@ -264,8 +249,6 @@ public class ZartmasService implements ZartmasServiceInterface
    public ResponseEntity<?> caseFillUp(String articleNumber , String plant ,String storageLocation,String totalValuatedStock,String totalWeight,String valueOfTotalValuatedStock){
 	       List <Zcount> zcount  = countRepo.findByarticleNumber(articleNumber);
 	     if(zcount != null && !zcount.isEmpty()){
-	    	 
-	    	 System.out.println(" ijioj j");
 	    	 
 	    	 zcount.stream().forEach(c->{
 	    		 if(c.getPeriod().equals("P1")){
@@ -290,14 +273,23 @@ public class ZartmasService implements ZartmasServiceInterface
 	   return new ResponseEntity<String>("Article Number not found in Zcount",HttpStatus.OK);
    }
    
-   
+   @Transactional
    public ResponseEntity<?> repackArticle(String articleNumber,String plant, String storageLocation , String weight){
 	   System.out.println(articleNumber);
 	   
 	    List<Zinventory> inventoryList=  invRepo.findByArticleNumberAndPlantAndStorageLoc(articleNumber, plant, storageLocation);
 	    if(inventoryList!= null && !inventoryList.isEmpty())
 	    {
-	    	inventoryList.stream().forEach(i->{i.setTotWeight(new BigDecimal(weight));});	
+	    	inventoryList.stream().forEach(i->{
+	    		i.setTotWeight(new BigDecimal(weight));
+	    	 	BigDecimal stndprice=i.getStndPrice();
+		    	BigDecimal Totalweight=i.getTotWeight();
+		    	BigDecimal valTotValuatedstock=stndprice.multiply(Totalweight);
+		    	i.setValTotValuatedStck(stndprice.multiply(Totalweight));	 	   
+		    	System.out.println("done!!");
+	    	
+	    	
+	    	});	
 	    	//invRepo.saveAll(inventoryList);
 	   
 	     return new ResponseEntity<String>("Success in update of inventory upon repack",HttpStatus.OK);
@@ -310,6 +302,7 @@ public class ZartmasService implements ZartmasServiceInterface
 	    //update total weight
    }
    
+   @Transactional
      public ResponseEntity<String> destroyDiscardReturnArticle(String articleNumber,String plant, String storageLocation , String weight){	   
 	   	 
 	   List<Zinventory> inventoryList=  invRepo.findByArticleNumberAndPlantAndStorageLoc(articleNumber, plant, storageLocation);
@@ -339,6 +332,61 @@ public class ZartmasService implements ZartmasServiceInterface
 	    }   
   }   
   
+   //categorywise display articles
+   public CategoryResponse display(String category) 
+  	{
+  		CategoryResponse categoryresponse=new CategoryResponse();
+  		List<CategoryDetailsResponse> categorydetailsresponses=null;
+  		CategoryDetailsResponse categorydetailsresponse=null;
+  		
+  		String hql = "SELECT W.articleNumber,W.materialGroupDesc ,W.materialDesc "
+  				+ "From com.incture.dos.Zartmas W  where W.materialGroupDesc = : category";
+  		
+  		
+  		@SuppressWarnings("rawtypes")
+  		Query query = entityManager.createQuery(hql);
+  		 query.setParameter("category", category);
+  		@SuppressWarnings({ "deprecation", "unchecked" })
+  		List <Object[]>results = ((org.hibernate.query.Query) query).list();
+  		
+  		categorydetailsresponses=new ArrayList();
+  		
+  		
+  		for(Object[] obj :results)
+  		{
+  		    categorydetailsresponse=new CategoryDetailsResponse();
+  			categorydetailsresponse.setArticleNumber(obj[0].toString());
+  			categorydetailsresponse.setMaterialGroupDesc(obj[1].toString());
+  			categorydetailsresponse.setMaterialDesc(obj[2].toString());
+  			
+  			categorydetailsresponses.add(categorydetailsresponse);
+  		}
+  	
+  		categoryresponse.setDetails(categorydetailsresponses);
+  		return categoryresponse;
+  	
+  	} 
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
  //item details
    public ItemResponse getItemDetails(String articlenumber) 
 	{
@@ -346,7 +394,7 @@ public class ZartmasService implements ZartmasServiceInterface
 		List<ItemDetailsResponse> itemdetailsresponses=null;
 		ItemDetailsResponse itemdetailsresponse=null;
 		
-		String hql = "SELECT W.articleNumber,W.materialGroupDesc , T.minSafetyStck,T.totValuatedStck "
+		String hql = "SELECT W.articleNumber,W.materialGroupDesc, W.materialDesc, T.minSafetyStck,T.totValuatedStck "
 				+ "From com.incture.dos.Zartmas W ,com.incture.dos.Zinventory T  where W.articleNumber = T.articleNumber AND W.articleNumber = : articlenumber";
 			//	+ " W.OrderNumber, W.desc,W.EquipName,W.actualhrs,W.plannedhrs,W.backloghrs,W.status,W.TechieAssigned, W.startdate, W.enddate ,W.type FROM  com.work.enity.WO W WHERE W.techieID !=0 ";
 		@SuppressWarnings("rawtypes")
@@ -365,11 +413,13 @@ public class ZartmasService implements ZartmasServiceInterface
 			//Object[] fields = (Object[]) obj;
 			itemdetailsresponse.setArticleNumber(obj[0].toString());
 			itemdetailsresponse.setMaterialGroupDesc(obj[1].toString());
-			BigDecimal minstck=(BigDecimal) obj[2];
-			BigDecimal totalvaluatedstck=(BigDecimal) obj[3];
+			BigDecimal minstck=(BigDecimal) obj[3];
+			BigDecimal totalvaluatedstck=(BigDecimal) obj[4];
 			itemdetailsresponse.setMinSafetyStck(minstck);
 			itemdetailsresponse.setTotValuatedStck(totalvaluatedstck);
 			itemdetailsresponse.setVendorAccNumber("11500");
+			itemdetailsresponse.setMaterialDesc(obj[2].toString());
+			
 			
 			itemdetailsresponses.add(itemdetailsresponse);
 		}

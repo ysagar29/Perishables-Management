@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.incture.dos.Zartmas;
+import com.incture.response.CategoryResponse;
 import com.incture.response.ItemResponse;
 import com.incture.service.ZartmasService;
 
@@ -71,6 +72,11 @@ public class ZartmasController
 	@GetMapping("itemdetails/{articleNumber}")
 	public ItemResponse Items(@PathVariable String articleNumber){//, @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){
 		return services.getItemDetails(articleNumber);//, plant, storageLocation, totalWeight);
+	}
+	
+	@GetMapping("categoryDisplay/{category}")
+	public CategoryResponse categories(@PathVariable String category){
+		return services.display(category);
 	}
 	
 

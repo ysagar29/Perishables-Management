@@ -8,8 +8,10 @@ public class ItemDetailsResponse {
 
 	private String materialGroupDesc;
 	
-	private String articleNumber;
+	private String materialDesc;
 	
+	private String articleNumber;
+
 	private String vendorAccNumber;
 	
 	private BigDecimal minSafetyStck;
@@ -54,6 +56,14 @@ public class ItemDetailsResponse {
 
 	public void setTotValuatedStck(BigDecimal totValuatedStck) {
 		this.totValuatedStck = totValuatedStck;
+	}
+
+	public String getMaterialDesc() {
+		return materialDesc;
+	}
+
+	public void setMaterialDesc(String materialDesc) {
+		this.materialDesc = materialDesc;
 	}
 
 	
