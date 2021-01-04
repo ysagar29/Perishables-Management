@@ -2,6 +2,8 @@ package com.incture.controllers;
 
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,7 +24,7 @@ import com.incture.service.ZartmasService;
 public class ZartmasController 
 {
 	@Autowired
-	private ZartmasService services;
+	 ZartmasService services;
 
 	@PostMapping("/saveOrUpdate")
 	public void saveOrUpdate(@RequestBody Zartmas zartmas) {
@@ -44,13 +46,14 @@ public class ZartmasController
 		return services.listAll();
 	}
 	
-	@GetMapping("/caseFillUp/{articleNumber}&{plant}&{storageLocation}&{totalValuatedStock}&{totalWeight}&{valueOfTotalValuatedStock}")
-	public ResponseEntity<?> caseFillUp(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalValuatedStock,@PathVariable String totalWeight,@PathVariable String valueOfTotalValuatedStock){
-		return services.caseFillUp(articleNumber, plant, storageLocation, totalValuatedStock, totalWeight, valueOfTotalValuatedStock);
+	@GetMapping("/caseFillUp/{articleNumber}&{plant}&{storageLocation}&{totalWeight}")
+	public ResponseEntity<?> caseFillUp(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){
+		return services.caseFillUp(articleNumber, plant, storageLocation,totalWeight);
 	}
 	
 	
-	@GetMapping("/repack/{articleNumber}&{plant}&{storageLocation}&{totalWeight}")//&{valueOfTotalValuatedStock}")
+    @Transactional
+	@PostMapping("/repack/{articleNumber}&{plant}&{storageLocation}&{totalWeight}")//&{valueOfTotalValuatedStock}")
 	public ResponseEntity<?> repackArticle(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){  //,@PathVariable String valueOfTotalValuatedStock){
 		return services.repackArticle(articleNumber, plant, storageLocation, totalWeight);
 	}
@@ -63,7 +66,7 @@ public class ZartmasController
 	}*/
 	
 	
-	@GetMapping("/DestroyDiscardReturn/{articleNumber}&{plant}&{storageLocation}&{totalWeight}")
+	@PostMapping("/DestroyDiscardReturn/{articleNumber}&{plant}&{storageLocation}&{totalWeight}")
 	public ResponseEntity<String> DestroyDiscardReturn(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){
 		return services.destroyDiscardReturnArticle(articleNumber, plant, storageLocation, totalWeight);
 	}

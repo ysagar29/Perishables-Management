@@ -10,6 +10,7 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
 @Entity

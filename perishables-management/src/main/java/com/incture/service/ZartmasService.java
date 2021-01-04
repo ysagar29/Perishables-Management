@@ -33,7 +33,7 @@ import com.incture.response.ItemResponse;
 import com.incture.utils.PersishableManagementConstants;
 
 @Service
-public class ZartmasService implements ZartmasServiceInterface
+public class ZartmasService 
 {
 	@Autowired
 	private ZartmasRepository repo;
@@ -246,7 +246,7 @@ public class ZartmasService implements ZartmasServiceInterface
 }
     
     //zcount table 
-   public ResponseEntity<?> caseFillUp(String articleNumber , String plant ,String storageLocation,String totalValuatedStock,String totalWeight,String valueOfTotalValuatedStock){
+   public ResponseEntity<?> caseFillUp(String articleNumber , String plant ,String storageLocation,String totalWeight){
 	       List <Zcount> zcount  = countRepo.findByarticleNumber(articleNumber);
 	     if(zcount != null && !zcount.isEmpty()){
 	    	 
@@ -263,9 +263,18 @@ public class ZartmasService implements ZartmasServiceInterface
 	    	 countRepo.saveAll(zcount);
 	    	 
 	    	   List<Zinventory> zInventory = invRepo.findByArticleNumberAndPlantAndStorageLoc(articleNumber, plant, storageLocation);
-	      	   zInventory.stream().forEach(i ->{ i.setTotValuatedStck(new BigDecimal(totalValuatedStock));
-	    	                                      i.setValTotValuatedStck(new BigDecimal(valueOfTotalValuatedStock));
-	    	                                      i.setTotWeight(new BigDecimal(totalWeight));});
+	      	   zInventory.stream().forEach(i ->{ 
+	      		   
+	      		 BigDecimal totalvaluatedstck=i.getTotValuatedStck();	
+	 	        i.setTotWeight(new BigDecimal(totalWeight)); //change weight
+	 	        BigDecimal newweight=i.getTotWeight();
+	 	        BigDecimal TotalValuatedStock=totalvaluatedstck.subtract(newweight);
+	 	    	i.setTotValuatedStck(TotalValuatedStock);//change total valuated stock
+	 	    	BigDecimal stndprice=i.getStndPrice();
+	 	    	BigDecimal Totalweight=i.getTotWeight();
+	 	    	BigDecimal valTotValuatedstock=stndprice.multiply(Totalweight);
+	 	    	i.setValTotValuatedStck(stndprice.multiply(Totalweight));
+	      	   });
 	    	  
 	    	   invRepo.saveAll(zInventory);
 	     return new ResponseEntity<List<Zcount>>(zcount,HttpStatus.OK);
@@ -273,25 +282,27 @@ public class ZartmasService implements ZartmasServiceInterface
 	   return new ResponseEntity<String>("Article Number not found in Zcount",HttpStatus.OK);
    }
    
-   @Transactional
+   
+
    public ResponseEntity<?> repackArticle(String articleNumber,String plant, String storageLocation , String weight){
 	   System.out.println(articleNumber);
 	   
 	    List<Zinventory> inventoryList=  invRepo.findByArticleNumberAndPlantAndStorageLoc(articleNumber, plant, storageLocation);
 	    if(inventoryList!= null && !inventoryList.isEmpty())
 	    {
-	    	inventoryList.stream().forEach(i->{
+	    	    inventoryList.stream().forEach(i->{
 	    		i.setTotWeight(new BigDecimal(weight));
 	    	 	BigDecimal stndprice=i.getStndPrice();
 		    	BigDecimal Totalweight=i.getTotWeight();
 		    	BigDecimal valTotValuatedstock=stndprice.multiply(Totalweight);
-		    	i.setValTotValuatedStck(stndprice.multiply(Totalweight));	 	   
+		    	i.setValTotValuatedStck(stndprice.multiply(Totalweight));
+		    	
 		    	System.out.println("done!!");
-	    	
-	    	
 	    	});	
-	    	//invRepo.saveAll(inventoryList);
-	   
+	    	invRepo.saveAll(inventoryList);
+	    	
+	    
+	    	System.err.println("check end ");
 	     return new ResponseEntity<String>("Success in update of inventory upon repack",HttpStatus.OK);
 	    	
 	    }else {
@@ -323,6 +334,7 @@ public class ZartmasService implements ZartmasServiceInterface
 	    
 	    	});
 	    	
+	    	invRepo.saveAll(inventoryList);
 	    	return new ResponseEntity<String>("Success in update of inventory on returning or destroying or discarding", HttpStatus.OK);
 	    	
 	    }else {

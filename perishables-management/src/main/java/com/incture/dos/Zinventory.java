@@ -1,27 +1,26 @@
 package com.incture.dos;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 
 @Data
-@Embeddable
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "ZINVENTORY")
-@EqualsAndHashCode(callSuper = false)
-@IdClass(Zinventory.class)
-//@EmbeddedId
-public class Zinventory extends Zinvencomposite
+@IdClass(Zinvencomposite.class)
+public class Zinventory implements Serializable 
 {
 	/**
 	 * 
