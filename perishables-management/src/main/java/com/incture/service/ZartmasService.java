@@ -198,7 +198,7 @@ public class ZartmasService
     			
     			 if(count.getProjectedBOHQty().intValue()<count.getReorderPt().intValue()){
     				
-    				 // no  required replensih
+    				 // no  required replenish
     				 count.setReplenIndicator("X");
     			 }else {
     				 // required replenish
@@ -414,7 +414,7 @@ public class ZartmasService
 		 query.setParameter("articlenumber", articlenumber);
 		@SuppressWarnings({ "deprecation", "unchecked" })
 		List <Object[]>results = ((org.hibernate.query.Query) query).list();
-		
+		if(results!=null && !results.isEmpty()){
 		itemdetailsresponses=new ArrayList();
 		
 		
@@ -437,6 +437,7 @@ public class ZartmasService
 		}
 	
 		itemresponse.setDetails(itemdetailsresponses);
+		}
 		return itemresponse;
 	
 	} 

@@ -5,6 +5,7 @@ import java.util.List;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -73,8 +74,16 @@ public class ZartmasController
 	
 
 	@GetMapping("itemdetails/{articleNumber}")
-	public ItemResponse Items(@PathVariable String articleNumber){//, @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){
-		return services.getItemDetails(articleNumber);//, plant, storageLocation, totalWeight);
+	public ResponseEntity<?> Items(@PathVariable String articleNumber){//, @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){
+	             ItemResponse item = services.getItemDetails(articleNumber);
+	             //, plant, storageLocation, totalWeight);
+	             
+	             if(item.getItemDetails() != null && !item.getItemDetails().isEmpty()  ){
+	            	return new ResponseEntity<ItemResponse>(item,HttpStatus.OK) ;
+	             }else {
+	            	 return new ResponseEntity<String>("No reccords found in Inventory or Article ",HttpStatus.OK) ;
+	             }
+	             
 	}
 	
 	@GetMapping("categoryDisplay/{category}")

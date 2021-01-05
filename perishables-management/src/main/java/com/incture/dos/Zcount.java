@@ -1,5 +1,6 @@
 package com.incture.dos;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.util.Date;
@@ -10,15 +11,24 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "ZCOUNT")
-@IdClass(Zcount.class)
-public class Zcount  extends ZcountComposite
+@Table(name = "ZCOUNTS")
+@IdClass(ZcountComposite.class)
+public class Zcount  implements Serializable 
 {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@Column(name = "ARTICLENUMBER")
 	private String articleNumber;
@@ -30,6 +40,7 @@ public class Zcount  extends ZcountComposite
 	@Column(name = "DATE")
 	private Date Date;
 	
+	@Id
 	@Column(name = "PERIOD")
 	private String period;
 	
