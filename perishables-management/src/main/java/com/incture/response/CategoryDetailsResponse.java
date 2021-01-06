@@ -53,7 +53,7 @@ public class CategoryDetailsResponse
 	}
 
 	public boolean isAvailableStckQtyCheck() {
-		return true;
+		return availableStckQtyCheck;
 	}
 
 	public void setAvailableStckQtyCheck(boolean availableStckQtyCheck) {

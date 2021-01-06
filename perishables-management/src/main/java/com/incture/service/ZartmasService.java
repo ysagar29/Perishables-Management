@@ -381,8 +381,9 @@ public class ZartmasService
   		List<CategoryDetailsResponse> categorydetailsresponses=null;
   		CategoryDetailsResponse categorydetailsresponse=null;
   		
-  		String hql = "SELECT W.articleNumber,W.materialGroupDesc ,W.materialDesc "
-  				+ "From com.incture.dos.Zartmas W  where W.materialGroupDesc = : category";
+  		String hql = "SELECT W.articleNumber,W.materialGroupDesc, W.materialDesc, T.minSafetyStck,T.totValuatedStck "
+  				+ "From com.incture.dos.Zartmas W  inner join com.incture.dos.Zinventory T on W.articleNumber = T.articleNumber where W.materialGroupDesc = : category";
+  		
   		
   		
   		@SuppressWarnings("rawtypes")
@@ -401,18 +402,22 @@ public class ZartmasService
   			categorydetailsresponse.setArticleNumber(obj[0].toString());
   			categorydetailsresponse.setMaterialGroupDesc(obj[1].toString());
   			categorydetailsresponse.setMaterialDesc(obj[2].toString());
-  			/*categorydetailsresponse.setMinSafetyStck(obj[3].toString());
+  			categorydetailsresponse.setMinSafetyStck(obj[3].toString());
   			categorydetailsresponse.setTotValuatedStck(obj[4].toString());
-  			 int minSafetyStck = (int)obj[3];
-  			 int totValuatedStck = (int)obj[4];
-  			 if(totValuatedStck >= minSafetyStck){
+  			 BigDecimal minSafetyStck = (BigDecimal)obj[3];
+  			 BigDecimal  totValuatedStck = (BigDecimal)obj[4];
+  			 
+  			 int totValuatedStckInteger = totValuatedStck.intValue();
+  		     int minSafetyStckValue = minSafetyStck.intValue();
+  			 
+  			 if(totValuatedStckInteger>=minSafetyStckValue){
   				categorydetailsresponse.setCriticalStckQtyCheck(true);
   				categorydetailsresponse.setAvailableStckQtyCheck(false);
   			 }else {
   				categorydetailsresponse.setCriticalStckQtyCheck(false);
   				categorydetailsresponse.setAvailableStckQtyCheck(true);
   			 }
-  			*/
+  			
   			
   			categorydetailsresponses.add(categorydetailsresponse);
   		}
@@ -431,7 +436,7 @@ public class ZartmasService
 		List<ItemDetailsResponse> itemdetailsresponses=null;
 		ItemDetailsResponse itemdetailsresponse=null;
 		
-		String hql = "SELECT W.articleNumber,W.materialGroupDesc, W.materialDesc, T.minSafetyStck,T.totValuatedStck ,T.totWeight, T.unitWeight ,T.unitQty ,T.unitCurrency , Z.vendorAccNumber  "
+		String hql = "SELECT W.articleNumber,W.materialGroupDesc, W.materialDesc, T.minSafetyStck,T.totValuatedStck ,T.totWeight, T.unitWeight ,T.unitQty ,T.unitCurrency , Z.vendorAccNumber ,T.valTotValuatedStck,T. "
 				+ "From com.incture.dos.Zartmas W ,com.incture.dos.Zinventory T , com.incture.dos.Zvend Z where W.articleNumber = T.articleNumber  AND  Z.articleNumber = W.articleNumber AND W.articleNumber = : articlenumber";
 			
 		@SuppressWarnings("rawtypes")
@@ -454,7 +459,7 @@ public class ZartmasService
 			BigDecimal totalvaluatedstck=(BigDecimal) obj[4];
 			itemdetailsresponse.setMinSafetyStck(minstck);
 			itemdetailsresponse.setTotValuatedStck(totalvaluatedstck);
-			itemdetailsresponse.setVendorAccNumber(obj[8].toString());
+			itemdetailsresponse.setVendorAccNumber(obj[9].toString());
 			itemdetailsresponse.setMaterialDesc(obj[2].toString());
 			
 			itemdetailsresponse.setTotWeight((BigDecimal)obj[5]);
@@ -469,7 +474,11 @@ public class ZartmasService
 			if(obj[8]!=null)
 			{
 			itemdetailsresponse.setTotalValuatedStckUnit(obj[8].toString());
+			}if(obj[10]!=null){
+				itemdetailsresponse.setValTotValuatedStck((BigDecimal)obj[10]);	
 			}
+			
+			
 			
 			itemdetailsresponses.add(itemdetailsresponse);
 		}

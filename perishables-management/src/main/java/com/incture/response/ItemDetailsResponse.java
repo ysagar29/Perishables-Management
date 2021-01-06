@@ -26,6 +26,26 @@ public class ItemDetailsResponse {
 
 	private String  totalValuatedStckUnit;//MEINS UNIT OF CURRENCY
 	
+	public BigDecimal getValTotValuatedStck() {
+		return valTotValuatedStck;
+	}
+
+	public void setValTotValuatedStck(BigDecimal valTotValuatedStck) {
+		this.valTotValuatedStck = valTotValuatedStck;
+	}
+
+	public String getValTotValuatedStckUnit() {
+		return valTotValuatedStckUnit;
+	}
+
+	public void setValTotValuatedStckUnit(String valTotValuatedStckUnit) {
+		this.valTotValuatedStckUnit = valTotValuatedStckUnit;
+	}
+
+	private BigDecimal valTotValuatedStck;
+	
+	private String valTotValuatedStckUnit;
+	
 	public String getMaterialGroupDesc() {
 		return materialGroupDesc;
 	}

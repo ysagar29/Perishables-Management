@@ -26,6 +26,7 @@ public class ZinventoryService
 
 	public void saveOrUpdate(Zinventory zinventory) {
 		// TODO Auto-generated method stub
+		 zinventory.setValTotValuatedStck(zinventory.getStndPrice().multiply(zinventory.getTotWeight()));
 		repo.saveAndFlush(zinventory);
 	}
 
