@@ -59,6 +59,9 @@ public class Zinventory implements Serializable
 	
 	@Column(name = "TOTAL_WEIGHT")
 	private BigDecimal totWeight;
+	
+	@Column(name = "WEIGHT_PER_UNIT")
+	private BigDecimal weightPerUnit;
 
 	@Column(name = "UNIT_OF_WEIGHT")
 	private int unitWeight;

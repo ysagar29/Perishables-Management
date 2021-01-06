@@ -293,22 +293,21 @@ public class ZartmasService
    String storageLocation=details.getStorageLoc();
     String weight=details.getTotWeight().toString();
     
-   
-   
-	    List<Zinventory> inventoryList=  invRepo.findByArticleNumberAndPlantAndStorageLoc(articleNumber, plant, storageLocation);
-	    if(inventoryList!= null && !inventoryList.isEmpty())
-	    {
-	    	    inventoryList.stream().forEach(i->{
-	    		i.setTotWeight(new BigDecimal(weight));
-	    	 	BigDecimal stndprice=i.getStndPrice();
-		    	BigDecimal Totalweight=i.getTotWeight();
-		    	BigDecimal valTotValuatedstock=stndprice.multiply(Totalweight);
-		    	i.setValTotValuatedStck(stndprice.multiply(Totalweight));
-		    	
-		    	System.out.println("done!!");
-	    	});	
-	    	invRepo.saveAll(inventoryList);
+    List<Zinventory> inventoryList=  invRepo.findByArticleNumberAndPlantAndStorageLoc(articleNumber, plant, storageLocation);
+    if(inventoryList!= null && !inventoryList.isEmpty())
+    {
+    	    inventoryList.stream().forEach(i->{
+    		//i.setTotWeight(new BigDecimal(weight));
+    	 	BigDecimal stndprice=i.getStndPrice();
+	    	BigDecimal totalweightToBeSubFromOriginalWeight =i.getWeightPerUnit().subtract(new BigDecimal(weight));
+	    	BigDecimal totalWeight = i.getTotWeight().subtract(totalweightToBeSubFromOriginalWeight);
+	    	i.setTotWeight(totalWeight);
+	    	BigDecimal valTotValuatedstock=stndprice.multiply(totalWeight);
+	    	i.setValTotValuatedStck(stndprice.multiply(totalWeight));
 	    	
+	    	System.out.println("done!!");
+    	});	
+    	invRepo.saveAll(inventoryList);
 	    
 	    	System.err.println("check end ");
 	     //return new ResponseEntity<String>("Success in update of inventory upon repack",HttpStatus.OK);
@@ -339,22 +338,24 @@ public class ZartmasService
 	   
 	   List<Zinventory> inventoryList=  invRepo.findByArticleNumberAndPlantAndStorageLoc(articleNumber, plant, storageLocation);
 	   
-	    if(inventoryList!= null && !inventoryList.isEmpty())
+	   if(inventoryList!= null && !inventoryList.isEmpty())
 	    {
 	    	inventoryList.stream().forEach(i->{
 	    	BigDecimal totalvaluatedstck=i.getTotValuatedStck();	
-	        i.setTotWeight(new BigDecimal(weight)); //change weight
-	        BigDecimal newweight=i.getTotWeight();
-	        BigDecimal TotalValuatedStock=totalvaluatedstck.subtract(newweight);
+	       //change weight
+	        BigDecimal newweight=i.getTotWeight().subtract( new BigDecimal(weight));
+	        i.setTotWeight(newweight);
+	        BigDecimal TotalValuatedStock=totalvaluatedstck.subtract(new BigDecimal(1));
 	    	i.setTotValuatedStck(TotalValuatedStock);//change total valuated stock
 	    	BigDecimal stndprice=i.getStndPrice();
 	    	BigDecimal Totalweight=i.getTotWeight();
-	    	BigDecimal valTotValuatedstock=stndprice.multiply(Totalweight);
+	    	//BigDecimal valTotValuatedstock=stndprice.multiply(Totalweight);
 	    	i.setValTotValuatedStck(stndprice.multiply(Totalweight));	 	   
 	    	System.out.println("b");
 	    
 	    	});
 	    	
+	    	invRepo.saveAll(inventoryList);
 	    	ResponseJson RJson=new ResponseJson();
 	    	RJson.setMessage("Success");
 	    	
@@ -367,6 +368,11 @@ public class ZartmasService
 	    	return new ResponseEntity<ResponseJson>(HttpStatus.OK);
 	    }   
   }   
+   
+   
+   
+   
+  
   
    //categorywise display articles
    public CategoryResponse display(String category) 
@@ -384,6 +390,7 @@ public class ZartmasService
   		 query.setParameter("category", category);
   		@SuppressWarnings({ "deprecation", "unchecked" })
   		List <Object[]>results = ((org.hibernate.query.Query) query).list();
+  	
   		
   		categorydetailsresponses=new ArrayList();
   		
@@ -394,6 +401,18 @@ public class ZartmasService
   			categorydetailsresponse.setArticleNumber(obj[0].toString());
   			categorydetailsresponse.setMaterialGroupDesc(obj[1].toString());
   			categorydetailsresponse.setMaterialDesc(obj[2].toString());
+  			/*categorydetailsresponse.setMinSafetyStck(obj[3].toString());
+  			categorydetailsresponse.setTotValuatedStck(obj[4].toString());
+  			 int minSafetyStck = (int)obj[3];
+  			 int totValuatedStck = (int)obj[4];
+  			 if(totValuatedStck >= minSafetyStck){
+  				categorydetailsresponse.setCriticalStckQtyCheck(true);
+  				categorydetailsresponse.setAvailableStckQtyCheck(false);
+  			 }else {
+  				categorydetailsresponse.setCriticalStckQtyCheck(false);
+  				categorydetailsresponse.setAvailableStckQtyCheck(true);
+  			 }
+  			*/
   			
   			categorydetailsresponses.add(categorydetailsresponse);
   		}
@@ -402,24 +421,6 @@ public class ZartmasService
   		return categoryresponse;
   	
   	} 
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
    
    
    
