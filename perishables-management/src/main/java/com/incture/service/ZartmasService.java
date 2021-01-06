@@ -22,6 +22,7 @@ import com.incture.dos.Zartmas;
 import com.incture.dos.Zcount;
 import com.incture.dos.Zinventory;
 import com.incture.dos.Zvend;
+import com.incture.payload.RepackPayload;
 import com.incture.repository.ZartmasRepository;
 import com.incture.repository.ZcountRepository;
 import com.incture.repository.ZinventoryRepository;
@@ -30,6 +31,7 @@ import com.incture.response.CategoryDetailsResponse;
 import com.incture.response.CategoryResponse;
 import com.incture.response.ItemDetailsResponse;
 import com.incture.response.ItemResponse;
+import com.incture.response.ResponseJson;
 import com.incture.utils.PersishableManagementConstants;
 
 @Service
@@ -284,9 +286,15 @@ public class ZartmasService
    
    
 
-   public ResponseEntity<?> repackArticle(String articleNumber,String plant, String storageLocation , String weight){
-	   System.out.println(articleNumber);
-	   
+   public ResponseEntity<?> repackArticle(RepackPayload details)
+   {
+   String articleNumber=details.getArticleNumber();
+   String plant=details.getPlant();
+   String storageLocation=details.getStorageLoc();
+    String weight=details.getTotWeight().toString();
+    
+   
+   
 	    List<Zinventory> inventoryList=  invRepo.findByArticleNumberAndPlantAndStorageLoc(articleNumber, plant, storageLocation);
 	    if(inventoryList!= null && !inventoryList.isEmpty())
 	    {
@@ -303,19 +311,32 @@ public class ZartmasService
 	    	
 	    
 	    	System.err.println("check end ");
-	     return new ResponseEntity<String>("Success in update of inventory upon repack",HttpStatus.OK);
+	     //return new ResponseEntity<String>("Success in update of inventory upon repack",HttpStatus.OK);
+	    	ResponseJson RJson=new ResponseJson();
+	    	RJson.setMessage("Success");
 	    	
+	     	invRepo.saveAll(inventoryList);
+	    	return new ResponseEntity(RJson, HttpStatus.OK);
 	    }else {
 	    	
-	    	return new ResponseEntity<String>("Not found Article in inventory" , HttpStatus.OK);
+	    	ResponseJson RJson=new ResponseJson();
+	    	RJson.setMessage("Not found !!");
+	    	return new ResponseEntity<ResponseJson>(HttpStatus.OK);
+	    	//return new ResponseEntity<String>("Not found Article in inventory" , HttpStatus.OK);
 	    	
 	    }//loose wt
 	    //update total weight
    }
    
-   @Transactional
-     public ResponseEntity<String> destroyDiscardReturnArticle(String articleNumber,String plant, String storageLocation , String weight){	   
+   @SuppressWarnings("unchecked")
+@Transactional
+     public ResponseEntity<ResponseJson> destroyDiscardReturnArticle(RepackPayload details){//String articleNumber,String plant, String storageLocation , String weight){	   
 	   	 
+	   String articleNumber=details.getArticleNumber();
+	   String plant=details.getPlant();
+	   String storageLocation=details.getStorageLoc();
+	    String weight=details.getTotWeight().toString();
+	   
 	   List<Zinventory> inventoryList=  invRepo.findByArticleNumberAndPlantAndStorageLoc(articleNumber, plant, storageLocation);
 	   
 	    if(inventoryList!= null && !inventoryList.isEmpty())
@@ -334,13 +355,16 @@ public class ZartmasService
 	    
 	    	});
 	    	
-	    	invRepo.saveAll(inventoryList);
-	    	return new ResponseEntity<String>("Success in update of inventory on returning or destroying or discarding", HttpStatus.OK);
+	    	ResponseJson RJson=new ResponseJson();
+	    	RJson.setMessage("Success");
+	    	
+	     	invRepo.saveAll(inventoryList);
+	    	return new ResponseEntity(RJson, HttpStatus.OK);
 	    	
 	    }else {
-	    	
-	    	return new ResponseEntity<String>("Not found Article in inventory" , HttpStatus.OK);
-	    	
+	    	ResponseJson RJson=new ResponseJson();
+	    	RJson.setMessage("Not found !!");
+	    	return new ResponseEntity<ResponseJson>(HttpStatus.OK);
 	    }   
   }   
   
@@ -400,15 +424,15 @@ public class ZartmasService
    
    
  //item details
-   public ItemResponse getItemDetails(String articlenumber) 
+   public ItemDetailsResponse getItemDetails(String articlenumber) 
 	{
 		ItemResponse itemresponse=new ItemResponse();
 		List<ItemDetailsResponse> itemdetailsresponses=null;
 		ItemDetailsResponse itemdetailsresponse=null;
 		
-		String hql = "SELECT W.articleNumber,W.materialGroupDesc, W.materialDesc, T.minSafetyStck,T.totValuatedStck "
-				+ "From com.incture.dos.Zartmas W ,com.incture.dos.Zinventory T  where W.articleNumber = T.articleNumber AND W.articleNumber = : articlenumber";
-			//	+ " W.OrderNumber, W.desc,W.EquipName,W.actualhrs,W.plannedhrs,W.backloghrs,W.status,W.TechieAssigned, W.startdate, W.enddate ,W.type FROM  com.work.enity.WO W WHERE W.techieID !=0 ";
+		String hql = "SELECT W.articleNumber,W.materialGroupDesc, W.materialDesc, T.minSafetyStck,T.totValuatedStck ,T.totWeight, T.unitWeight ,T.unitQty ,T.unitCurrency , Z.vendorAccNumber  "
+				+ "From com.incture.dos.Zartmas W ,com.incture.dos.Zinventory T , com.incture.dos.Zvend Z where W.articleNumber = T.articleNumber  AND  Z.articleNumber = W.articleNumber AND W.articleNumber = : articlenumber";
+			
 		@SuppressWarnings("rawtypes")
 		Query query = entityManager.createQuery(hql);
 		 query.setParameter("articlenumber", articlenumber);
@@ -429,16 +453,29 @@ public class ZartmasService
 			BigDecimal totalvaluatedstck=(BigDecimal) obj[4];
 			itemdetailsresponse.setMinSafetyStck(minstck);
 			itemdetailsresponse.setTotValuatedStck(totalvaluatedstck);
-			itemdetailsresponse.setVendorAccNumber("11500");
+			itemdetailsresponse.setVendorAccNumber(obj[8].toString());
 			itemdetailsresponse.setMaterialDesc(obj[2].toString());
 			
+			itemdetailsresponse.setTotWeight((BigDecimal)obj[5]);
+			if(obj[6]!=null)
+			{
+			itemdetailsresponse.setUnitofWeight(obj[6].toString());
+			}
+			if(obj[7]!=null)
+			{
+			itemdetailsresponse.setMinSafetyStckUnit(obj[7].toString());
+			}
+			if(obj[8]!=null)
+			{
+			itemdetailsresponse.setTotalValuatedStckUnit(obj[8].toString());
+			}
 			
 			itemdetailsresponses.add(itemdetailsresponse);
 		}
 	
 		itemresponse.setDetails(itemdetailsresponses);
 		}
-		return itemresponse;
+		return itemdetailsresponse;
 	
 	} 
 

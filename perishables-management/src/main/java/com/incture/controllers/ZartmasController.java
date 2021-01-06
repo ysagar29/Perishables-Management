@@ -13,11 +13,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.incture.dos.Zartmas;
+import com.incture.payload.RepackPayload;
 import com.incture.response.CategoryResponse;
-import com.incture.response.ItemResponse;
+import com.incture.response.ItemDetailsResponse;
+import com.incture.response.ResponseJson;
 import com.incture.service.ZartmasService;
 
 @RestController
@@ -54,32 +57,25 @@ public class ZartmasController
 	
 	
     @Transactional
-	@PostMapping("/repack/{articleNumber}&{plant}&{storageLocation}&{totalWeight}")//&{valueOfTotalValuatedStock}")
-	public ResponseEntity<?> repackArticle(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){  //,@PathVariable String valueOfTotalValuatedStock){
-		return services.repackArticle(articleNumber, plant, storageLocation, totalWeight);
+    @ResponseBody
+	@PostMapping("/repack")//{articleNumber}&{plant}&{storageLocation}&{totalWeight}")//&{valueOfTotalValuatedStock}")
+	public ResponseEntity<?> repackArticle(@RequestBody RepackPayload details){// , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){  //,@PathVariable String valueOfTotalValuatedStock){
+		return services.repackArticle(details);
 	}
-	
-	
-	//repack and destroy article
-	/*@GetMapping("/Repack/{articleNumber}&{plant}&{storageLocation}&{totalWeight}")
-	public ResponseEntity<?> repackArticle1(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){
-		return services.repackArticle(articleNumber, plant, storageLocation, totalWeight);
-	}*/
-	
-	
-	@PostMapping("/DestroyDiscardReturn/{articleNumber}&{plant}&{storageLocation}&{totalWeight}")
-	public ResponseEntity<String> DestroyDiscardReturn(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){
-		return services.destroyDiscardReturnArticle(articleNumber, plant, storageLocation, totalWeight);
-	}
-	
 
+    @ResponseBody
+	@PostMapping("/DestroyDiscardReturn")//articleNumber}&{plant}&{storageLocation}&{totalWeight}")
+	public ResponseEntity<ResponseJson> DestroyDiscardReturn(@RequestBody RepackPayload details){//@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){
+		return services.destroyDiscardReturnArticle(details);//articleNumber, plant, storageLocation, totalWeight);
+	}
+	
 	@GetMapping("itemdetails/{articleNumber}")
 	public ResponseEntity<?> Items(@PathVariable String articleNumber){//, @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){
-	             ItemResponse item = services.getItemDetails(articleNumber);
-	             //, plant, storageLocation, totalWeight);
+	             ItemDetailsResponse item = services.getItemDetails(articleNumber);
 	             
-	             if(item.getItemDetails() != null && !item.getItemDetails().isEmpty()  ){
-	            	return new ResponseEntity<ItemResponse>(item,HttpStatus.OK) ;
+	             if(item !=null ){
+	             //if(item.getItemDetails() != null && !item.getItemDetails().isEmpty()  ){
+	            	return new ResponseEntity<ItemDetailsResponse>(item,HttpStatus.OK) ;
 	             }else {
 	            	 return new ResponseEntity<String>("No reccords found in Inventory or Article ",HttpStatus.OK) ;
 	             }

@@ -8,6 +8,10 @@ public class ItemDetailsResponse {
 
 	private String materialGroupDesc;
 	
+	private BigDecimal totWeight;
+	
+	private String unitofWeight;//MEINS2
+
 	private String materialDesc;
 	
 	private String articleNumber;
@@ -15,9 +19,13 @@ public class ItemDetailsResponse {
 	private String vendorAccNumber;
 	
 	private BigDecimal minSafetyStck;
+
+	private String minSafetyStckUnit;//MEINS1
 	
 	private BigDecimal totValuatedStck;
 
+	private String  totalValuatedStckUnit;//MEINS UNIT OF CURRENCY
+	
 	public String getMaterialGroupDesc() {
 		return materialGroupDesc;
 	}
@@ -66,5 +74,35 @@ public class ItemDetailsResponse {
 		this.materialDesc = materialDesc;
 	}
 
+	public String getMinSafetyStckUnit() {
+		return minSafetyStckUnit;
+	}
+
+	public void setMinSafetyStckUnit(String minSafetyStckUnit) {
+		this.minSafetyStckUnit = minSafetyStckUnit;
+	}
+
+	public String getTotalValuatedStckUnit() {
+		return totalValuatedStckUnit;
+	}
+
+	public void setTotalValuatedStckUnit(String totalValuatedStckUnit) {
+		this.totalValuatedStckUnit = totalValuatedStckUnit;
+	}
 	
+	public BigDecimal getTotWeight() {
+		return totWeight;
+	}
+
+	public void setTotWeight(BigDecimal totWeight) {
+		this.totWeight = totWeight;
+	}
+
+	public String getUnitofWeight() {
+		return unitofWeight;
+	}
+
+	public void setUnitofWeight(String unitofWeight) {
+		this.unitofWeight = unitofWeight;
+	}
 }
