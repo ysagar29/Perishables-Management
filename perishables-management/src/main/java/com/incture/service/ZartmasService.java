@@ -438,6 +438,7 @@ public class ZartmasService
 					 caseFillUp.setStandardPrice(i.getStndPrice().toString());
 					 caseFillUp.setPlant(i.getPlant());
 					 caseFillUp.setStorageLocation(i.getStorageLoc());
+					 caseFillUp.setArticleNumber(i.getArticleNumber());
 					 caseFillUpListDto.add(caseFillUp);
 				});
 			}
