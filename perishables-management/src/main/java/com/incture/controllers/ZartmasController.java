@@ -37,7 +37,7 @@ public class ZartmasController
 
 	@GetMapping("/findById/{id}&{currentWeight}&{plant}&{storageLoc}")
 	public ResponseEntity<? > findById(@PathVariable String id, @PathVariable String currentWeight,@PathVariable String plant,@PathVariable String storageLoc) {
-		return services.findProductDetailsAndUpdateZinventory(id, currentWeight, plant, storageLoc);
+		return services.findProductDetailsAndUpdateZcount(id,plant, storageLoc);
 	}
 
 	@DeleteMapping("/deleteById/{id}")

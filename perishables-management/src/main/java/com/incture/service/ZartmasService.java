@@ -83,12 +83,15 @@ public class ZartmasService
 	
 	//item details
     @SuppressWarnings("deprecation")
-	public ResponseEntity<?> findProductDetailsAndUpdateZinventory(String articleId, String currentWeight,String plant,String storageLocation){
+	public ResponseEntity<?> findProductDetailsAndUpdateZcount(String articleId,String plant,String storageLocation){
     	
     	// find the articale or product details based on product id 
+    	
     	 Optional<Zartmas> zartmas  =  repo.findById(articleId);
+    	 
     	
     	 if(zartmas.isPresent()) {
+    		 List<Zcount> listOfCount = new ArrayList<Zcount>();
     		 
     		 // check data present in zinventory table for the article
     		 List<Zinventory> zinventory = invRepo.findByArticleNumberAndPlantAndStorageLoc(articleId, plant, storageLocation);
@@ -97,34 +100,7 @@ public class ZartmasService
     		
     		 if(zinventory == null || zinventory.isEmpty() ){
     			 
-    			 System.out.println("empty");
-    			 
-    			 Zinventory  zinv  = new Zinventory();
-    			 zinv.setArticleNumber(articleId);
-    			 zinv.setPlant("1000");
-    			 zinv.setStorageLoc("2000");
-    			 zinv.setStndPrice( new BigDecimal("45.00"));
-    			 zinv.setPriceUnit("USD");
-    			 zinv.setCurrPeriod(12);
-    			 zinv.setTotValuatedStck(new BigDecimal(currentWeight));
-    			// zinv.setTotValuatedStck(new BigDecimal("95.00"));
-    			 zinv.setValTotValuatedStck(new BigDecimal("2250.00"));
-    			 zinv.setMinSafetyStck(new BigDecimal("100.00"));
-    		
-    			 
-    			 invRepo.save(zinv);
-    			 System.out.println("saving in zinventory");
-    			 
-    			 Zvend zvend =  new Zvend();
-    			 zvend.setArticleNumber(articleId);
-    			 zvend.setPlant("1000");
-    			 zvend.setSourceListRecordValidFrom(new Date("21-12-2020"));
-    			 zvend.setSourceListRecordValidTo(new Date("21-12-2020"));
-    			 zvend.setVendorAccNumber("11545");
-    			 
-    			 zvendRepo.save(zvend);
-    			 System.out.println("saving in zvend");
-    			 
+    				for(int i=0 ; i<zinventory.size();i++) {
     			 // create a reccord in ZACTION table 
     			 Zcount count = new Zcount();
     		
@@ -146,71 +122,26 @@ public class ZartmasService
     			 }
     			 count.setOptimumQty(new BigDecimal("500.00"));
     			 count.setSoldQty(new BigDecimal("100.00"));
-    			 count.setBeginningBOHQty(zinv.getTotValuatedStck());
+    			 count.setBeginningBOHQty(zinventory.get(0).getTotValuatedStck());
     			 count.setScannedQty(new BigDecimal("1"));
     			 count.setForecastQty(new BigDecimal("100.00"));
     			int projectedBOHQty = count.getScannedQty().intValue() - count.getForecastQty().intValue();
     			 count.setProjectedBOHQty(new BigDecimal(projectedBOHQty));
     			 int projectedReqQunatity = count.getOptimumQty().intValue()-count.getProjectedBOHQty().intValue();
     			 count.setProjectedReqQty(new BigDecimal(projectedReqQunatity));
-    			 count.setReorderPt(zinv.getMinSafetyStck());
+    			 count.setReorderPt(zinventory.get(0).getMinSafetyStck());
     			 count.setReplenIndicator("X");
     			 countRepo.save(count);
-    		
+    			 listOfCount.add(count);
+    				}
     			 
-    			 return new ResponseEntity<String>("SuccessFully Created inventory master data", HttpStatus.OK);
+    			 return new ResponseEntity<List<Zcount>>(listOfCount, HttpStatus.OK);
     			 
     			 
-    		 }else {
-    			 zinventory.stream().forEach(z ->  { 
-    				 z.setTotWeight(new BigDecimal(currentWeight));
-    			 });
-    			 
-    			 invRepo.saveAll(zinventory);
-    			 
-    			 for(int i = 0;i<zinventory.size();i++){
-                  Zcount count = new Zcount();                  
-    			 
-    			 count.setArticleNumber(articleId);
-    			 count.setPlant(plant);
-    			 count.setStorageLocation(storageLocation);
-    			 count.setDate(new Date());
-    			 count.setPeriod("P"+setPeriodBasedOnScannedDate(new Date()));
-    			 LocalTime  localTime = LocalTime.now();
-    			 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
-    			 System.out.println(localTime.format(dateTimeFormatter));
-    			 
-    			 count.setTime(localTime.format(dateTimeFormatter)); //comment
-    			 if(count.getPeriod().contains("P1")||count.getPeriod().contains("P2")||count.getPeriod().contains("P3")||count.getPeriod().contains("P4")){
-    			 count.setPeak("X");
-    			 }else {
-    				 count.setPeak("0");
-    			 }
-    			
-    			 count.setOptimumQty(new BigDecimal("500.00"));
-    			 count.setSoldQty(new BigDecimal("100.00"));
-    			 count.setBeginningBOHQty(zinventory.get(i).getTotValuatedStck());
-    			 count.setScannedQty(new BigDecimal("1"));
-    			 count.setForecastQty(new BigDecimal("100.00"));
-    			int projectedBOHQty = count.getScannedQty().intValue() - count.getForecastQty().intValue();
-    			 count.setProjectedBOHQty(new BigDecimal(projectedBOHQty));
-    			 int projectedReqQunatity = count.getOptimumQty().intValue()-count.getProjectedBOHQty().intValue();
-    			 count.setProjectedReqQty(new BigDecimal(projectedReqQunatity));
-    			 count.setReorderPt(zinventory.get(i).getMinSafetyStck());
-    			
-    			 if(count.getProjectedBOHQty().intValue()<count.getReorderPt().intValue()){
-    				
-    				 // no  required replenish
-    				 count.setReplenIndicator("X");
-    			 }else {
-    				 // required replenish
-    				 count.setReplenIndicator("0");
-    			 }
-    			  countRepo.save(count);
-    			 }
-    			 
-    		
-    			 return new ResponseEntity<List<Zinventory>>(zinventory,HttpStatus.OK);
+    		 }else { 
+    			 ResponseJson RJson=new ResponseJson();
+    		    	RJson.setMessage("Not found !!");
+    		    	return new ResponseEntity<ResponseJson>(HttpStatus.OK);
     		 
     		 }
     	 }else {
@@ -436,7 +367,7 @@ public class ZartmasService
 		List<ItemDetailsResponse> itemdetailsresponses=null;
 		ItemDetailsResponse itemdetailsresponse=null;
 		
-		String hql = "SELECT W.articleNumber,W.materialGroupDesc, W.materialDesc, T.minSafetyStck,T.totValuatedStck ,T.totWeight, T.unitWeight ,T.unitQty ,T.unitCurrency , Z.vendorAccNumber ,T.valTotValuatedStck,T. "
+		String hql = "SELECT W.articleNumber,W.materialGroupDesc, W.materialDesc, T.minSafetyStck,T.totValuatedStck ,T.totWeight, T.unitWeight ,T.unitQty ,T.unitCurrency , Z.vendorAccNumber ,T.valTotValuatedStck "
 				+ "From com.incture.dos.Zartmas W ,com.incture.dos.Zinventory T , com.incture.dos.Zvend Z where W.articleNumber = T.articleNumber  AND  Z.articleNumber = W.articleNumber AND W.articleNumber = : articlenumber";
 			
 		@SuppressWarnings("rawtypes")
@@ -505,7 +436,9 @@ public class ZartmasService
 					 caseFillUp.setBoh(i.getTotValuatedStck().toString());
 					 caseFillUp.setMaterialDescription(a.getMaterialDesc());
 					 caseFillUp.setStandardPrice(i.getStndPrice().toString());
-					caseFillUpListDto.add(caseFillUp);
+					 caseFillUp.setPlant(i.getPlant());
+					 caseFillUp.setStorageLocation(i.getStorageLoc());
+					 caseFillUpListDto.add(caseFillUp);
 				});
 			}
 		});
@@ -519,9 +452,9 @@ public class ZartmasService
 			return new ResponseEntity<ResponseJson>(responseJson,HttpStatus.OK);
 			}
 		}
-	ResponseJson responseJson =  new ResponseJson();
-	responseJson.setMessage("Not Found Article !");
-	return new ResponseEntity<ResponseJson>(responseJson,HttpStatus.OK);
+	       ResponseJson responseJson =  new ResponseJson();
+	       responseJson.setMessage("Not Found Article !");
+	       return new ResponseEntity<ResponseJson>(responseJson,HttpStatus.OK);
 	}
 
 }

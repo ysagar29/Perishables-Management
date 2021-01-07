@@ -11,5 +11,11 @@ public class CaseFillUpDto {
 	
 	private String boh; // totalValuatedStock
 	
+	private String articleNumber; 
+	
+	private String plant;
+	
+	private String storageLocation;
+	
 
 }
