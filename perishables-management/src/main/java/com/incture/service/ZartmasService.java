@@ -98,7 +98,7 @@ public class ZartmasService
     		 // if present than
 
     		
-    		 if(zinventory == null || zinventory.isEmpty() ){
+    		 if(zinventory != null || !zinventory.isEmpty() ){
     			 
     				for(int i=0 ; i<zinventory.size();i++) {
     			 // create a reccord in ZACTION table 
