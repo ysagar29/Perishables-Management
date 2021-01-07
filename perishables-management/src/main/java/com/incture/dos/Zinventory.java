@@ -55,7 +55,7 @@ public class Zinventory implements Serializable
 	private BigDecimal totValuatedStck;
 	
 	@Column(name = "UNIT_OF_QTY")
-	private int unitQty;
+	private String unitQty;
 	
 	@Column(name = "TOTAL_WEIGHT")
 	private BigDecimal totWeight;
@@ -64,13 +64,13 @@ public class Zinventory implements Serializable
 	private BigDecimal weightPerUnit;
 
 	@Column(name = "UNIT_OF_WEIGHT")
-	private int unitWeight;
+	private String unitWeight;
 	
 	@Column(name = "VALUE_TOT_VALUATED_STCK")
 	private BigDecimal valTotValuatedStck;
 	
 	@Column(name = "UNIT_OF_CURRENCY")
-	private int unitCurrency;
+	private String unitCurrency;
 	
 	
 }

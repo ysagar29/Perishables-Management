@@ -360,7 +360,7 @@ public class ZartmasService
    
    
    
- //item details
+   //item details
    public ItemDetailsResponse getItemDetails(String articlenumber) 
 	{
 		ItemResponse itemresponse=new ItemResponse();
@@ -368,7 +368,7 @@ public class ZartmasService
 		ItemDetailsResponse itemdetailsresponse=null;
 		
 		String hql = "SELECT W.articleNumber,W.materialGroupDesc, W.materialDesc, T.minSafetyStck,T.totValuatedStck ,T.totWeight, T.unitWeight ,T.unitQty ,T.unitCurrency , Z.vendorAccNumber ,T.valTotValuatedStck "
-				+ "From com.incture.dos.Zartmas W ,com.incture.dos.Zinventory T , com.incture.dos.Zvend Z where W.articleNumber = T.articleNumber  AND  Z.articleNumber = W.articleNumber AND W.articleNumber = : articlenumber";
+				+ "From com.incture.dos.Zartmas W ,com.incture.dos.Zinventory T , com.incture.dos.Zvend Z where W.articleNumber = T.articleNumber  AND  Z.articleNumber = W.articleNumber AND W.articleNumber = : articlenumber ";
 			
 		@SuppressWarnings("rawtypes")
 		Query query = entityManager.createQuery(hql);
@@ -404,12 +404,10 @@ public class ZartmasService
 			}
 			if(obj[8]!=null)
 			{
-			itemdetailsresponse.setTotalValuatedStckUnit(obj[8].toString());
+			itemdetailsresponse.setValTotValuatedStckUnit(obj[8].toString());
 			}if(obj[10]!=null){
 				itemdetailsresponse.setValTotValuatedStck((BigDecimal)obj[10]);	
 			}
-			
-			
 			
 			itemdetailsresponses.add(itemdetailsresponse);
 		}
