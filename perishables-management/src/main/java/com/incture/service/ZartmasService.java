@@ -487,6 +487,41 @@ public class ZartmasService
 		}
 		return itemdetailsresponse;
 	
-	} 
+	}
+   
+   
+   public ResponseEntity<?> findByCategory(String materialGroupDesc){
+	   List<CaseFillUpDto> caseFillUpListDto = new ArrayList<CaseFillUpDto>();
+	 
+		// call zarticle to get details based on category
+	List<Zartmas> listOfZarticle = repo.findByMaterialGroupDesc(materialGroupDesc);
+		// call zinventory to get details based on article 
+	if(listOfZarticle != null && !listOfZarticle.isEmpty()){
+		listOfZarticle.stream().forEach(a -> {
+			List<Zinventory> listOfZinventory = invRepo.findByarticleNumber(a.getArticleNumber());
+			if(listOfZinventory!=null && !listOfZinventory.isEmpty()){
+				listOfZinventory.stream().forEach(i-> {
+					 CaseFillUpDto 	caseFillUp = new CaseFillUpDto();
+					 caseFillUp.setBoh(i.getTotValuatedStck().toString());
+					 caseFillUp.setMaterialDescription(a.getMaterialDesc());
+					 caseFillUp.setStandardPrice(i.getStndPrice().toString());
+					caseFillUpListDto.add(caseFillUp);
+				});
+			}
+		});
+		// club the details and send it 
+		if(caseFillUpListDto != null && !caseFillUpListDto.isEmpty()){
+		
+		return new ResponseEntity<List<CaseFillUpDto>>(caseFillUpListDto,HttpStatus.OK);
+		}else {
+			ResponseJson responseJson =  new ResponseJson();
+			responseJson.setMessage("No Article Found In Inventory !");
+			return new ResponseEntity<ResponseJson>(responseJson,HttpStatus.OK);
+			}
+		}
+	ResponseJson responseJson =  new ResponseJson();
+	responseJson.setMessage("Not Found Article !");
+	return new ResponseEntity<ResponseJson>(responseJson,HttpStatus.OK);
+	}
 
 }

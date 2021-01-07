@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.incture.dos.Zcount;
+import com.incture.repository.ZartmasRepository;
 import com.incture.repository.ZcountRepository;
+import com.incture.repository.ZinventoryRepository;
 
 @Service
 public class ZcountService 
@@ -15,6 +17,8 @@ public class ZcountService
 
 	@Autowired
 	private ZcountRepository repo;
+	
+	
 
 	public List<Zcount> listAll() 
 	{
@@ -45,4 +49,6 @@ public class ZcountService
 		repo.deleteByarticleNumber(id);
 					return "deleted";
 		}
+	
+	
 }

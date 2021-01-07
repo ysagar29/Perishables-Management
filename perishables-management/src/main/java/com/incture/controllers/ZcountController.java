@@ -52,5 +52,7 @@ public class ZcountController
 	public List<Zcount> listAll() {
 		return services.listAll();
 	}
+	
+	
 
 }

@@ -87,5 +87,10 @@ public class ZartmasController
 		return services.display(category);
 	}
 	
+	@GetMapping("caseFillUpDetails/{category}")
+	public ResponseEntity<?> displayCaseFillUpDetails(@PathVariable String category){
+		return services.findByCategory(category);
+	}
+	
 
 }
