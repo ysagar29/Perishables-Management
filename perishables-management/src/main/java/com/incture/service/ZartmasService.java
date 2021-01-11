@@ -22,6 +22,8 @@ import com.incture.dos.Zartmas;
 import com.incture.dos.Zcount;
 import com.incture.dos.Zinventory;
 import com.incture.dos.Zvend;
+import com.incture.payload.CasefillUpPayload;
+import com.incture.payload.CountPayload;
 import com.incture.payload.RepackPayload;
 import com.incture.repository.ZartmasRepository;
 import com.incture.repository.ZcountRepository;
@@ -83,11 +85,17 @@ public class ZartmasService
 	
 	//item details
     @SuppressWarnings("deprecation")
-	public ResponseEntity<?> findProductDetailsAndUpdateZcount(String articleId,String plant,String storageLocation,String period,Date date,String soldQuantityInLastPeriod){
+	public ResponseEntity<?> findProductDetailsAndUpdateZcount(CountPayload details) {//String articleId,String plant,String storageLocation,String period,Date date,String soldQuantityInLastPeriod){
     	
     	// find the articale or product details based on product id 
-    	
-    	 Optional<Zartmas> zartmas  =  repo.findById(articleId);
+    	String articleId=details.getArticleNumber();
+        String plant=details.getPlant();
+        String storageLocation=details.getStorageLocation();
+        Date date=details.getDate();
+        String period=details.getPeriod();
+        
+        
+    Optional<Zartmas> zartmas  =  repo.findById(articleId);
     	 
     	
     	 if(zartmas.isPresent()) {
@@ -145,8 +153,10 @@ public class ZartmasService
     		 
     		 }
     	 }else {
+    		 ResponseJson RJson=new ResponseJson();
+		    	RJson.setMessage("Article or Product not found in table ");
     		 //check if the article is not there in the table , so return no article 
-    		 return new ResponseEntity<String>("Article or Product not found in table ",HttpStatus.OK); 
+    		 return new ResponseEntity<>(RJson,HttpStatus.OK); 
     	 }
     	 
     	 //return new ResponseEntity<List<Zinventory>>(zinventory,HttpStatus.OK);
@@ -233,8 +243,13 @@ public void scheduledUpdateZcount(){
 }
     
     //zcount table 
-   public ResponseEntity<?> caseFillUp(String articleNumber , String plant ,String storageLocation,String totalWeight){
-	       List <Zcount> zcount  = countRepo.findByarticleNumber(articleNumber);
+   public ResponseEntity<?> caseFillUp(CasefillUpPayload details)//String articleNumber , String plant ,String storageLocation,String totalWeight){
+   {
+	   String articleNumber=details.getArticleNumber(); 
+	   String totalWeight=details.getTotalWeight();
+	   String plant =details.getPlant();
+	   String storageLocation=details.getStorageLocation();
+	   List <Zcount> zcount  = countRepo.findByarticleNumber(articleNumber);
 	     if(zcount != null && !zcount.isEmpty()){
 	    	 
 	    	 zcount.stream().forEach(c->{

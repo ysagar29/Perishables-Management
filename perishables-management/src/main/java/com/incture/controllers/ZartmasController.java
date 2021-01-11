@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.incture.dos.Zartmas;
+import com.incture.payload.CasefillUpPayload;
+import com.incture.payload.CountPayload;
 import com.incture.payload.RepackPayload;
 import com.incture.response.CategoryResponse;
 import com.incture.response.ItemDetailsResponse;
@@ -36,9 +38,9 @@ public class ZartmasController
 		services.saveOrUpdate(zartmas);
 	}
 
-	@PostMapping("/count/{articleNumber}&{plant}&{storageLoc}&{period}&{date}&{soldQtyInLastPeriod}")
-	public ResponseEntity<? > findById(@PathVariable String articleNumber,@PathVariable String plant,@PathVariable String storageLoc,@PathVariable String period,@PathVariable Date date,@PathVariable String soldQtyInLastPeriod) {
-		return services.findProductDetailsAndUpdateZcount(articleNumber,plant, storageLoc,period,date,soldQtyInLastPeriod);
+	@PostMapping("/count")///{articleNumber}&{plant}&{storageLoc}&{period}&{date}&{soldQtyInLastPeriod}")
+	public ResponseEntity<? > findById(@RequestBody CountPayload details){//@PathVariable String articleNumber,@PathVariable String plant,@PathVariable String storageLoc,@PathVariable String period,@PathVariable Date date,@PathVariable String soldQtyInLastPeriod) {
+		return services.findProductDetailsAndUpdateZcount(details);//articleNumber,plant, storageLoc,period,date,soldQtyInLastPeriod);
 	}
 
 	@DeleteMapping("/deleteById/{id}")
@@ -51,9 +53,9 @@ public class ZartmasController
 		return services.listAll();
 	}
 	
-	@PostMapping("/caseFillUp/{articleNumber}&{plant}&{storageLocation}&{totalWeight}")
-	public ResponseEntity<?> caseFillUp(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){
-		return services.caseFillUp(articleNumber, plant, storageLocation,totalWeight);
+	@PostMapping("/caseFillUp")//{articleNumber}&{plant}&{storageLocation}&{totalWeight}")
+	public ResponseEntity<?> caseFillUp(@RequestBody CasefillUpPayload details){//@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){
+		return services.caseFillUp(details);//articleNumber, plant, storageLocation,totalWeight);
 	}
 	
 	@GetMapping("/getItemDetailsOfForecast/{articleNumber}&{plant}&{date}")
