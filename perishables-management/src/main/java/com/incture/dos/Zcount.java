@@ -81,7 +81,7 @@ public class Zcount  implements Serializable
 	private BigDecimal reorderPt;
 	
 	@Column(name = "UNIT_QTY")
-	private int unitQty;
+	private String unitQty;
 	
 	@Column(name = "REPLEN_INDICATOR")
 	private String replenIndicator;

@@ -58,9 +58,9 @@ public class ZartmasController
 		return services.caseFillUp(details);//articleNumber, plant, storageLocation,totalWeight);
 	}
 	
-	@GetMapping("/getItemDetailsOfForecast/{articleNumber}&{plant}&{date}")
-	public ResponseEntity<?> foreCastDetails(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable Date date){
-		return services.getItemDetailsOfForecast(articleNumber,plant,date);
+	@GetMapping("/getItemDetailsOfForecast")
+	public ResponseEntity<?> foreCastDetails(@RequestBody CountPayload count){
+		return services.getItemDetailsOfForecast(count);
 	}
 	
     @Transactional

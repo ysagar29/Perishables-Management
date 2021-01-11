@@ -83,6 +83,7 @@ public class ZartmasService
 				return "deleted";
 	}
 	
+	// count service 
 	//item details
     @SuppressWarnings("deprecation")
 	public ResponseEntity<?> findProductDetailsAndUpdateZcount(CountPayload details) {//String articleId,String plant,String storageLocation,String period,Date date,String soldQuantityInLastPeriod){
@@ -97,7 +98,7 @@ public class ZartmasService
         
     Optional<Zartmas> zartmas  =  repo.findById(articleId);
     	 
-    	
+    	System.err.println("zartmas "+zartmas );
     	 if(zartmas.isPresent()) {
     		 List<Zcount> listOfCount = new ArrayList<Zcount>();
     		 
@@ -106,8 +107,9 @@ public class ZartmasService
     		 // if present than
 
     		
-    		 if(zinventory != null || !zinventory.isEmpty() ){
+    		 if(!zinventory.isEmpty()&& zinventory != null ){	
     			 
+    			 System.err.println("zinventory "+zinventory);
     				for(int i=0 ; i<zinventory.size();i++) {
     			 // create a reccord in ZACTION table 
     			 Zcount count = new Zcount();
@@ -123,33 +125,38 @@ public class ZartmasService
     			
     	     	 count.setTime(localTime.format(dateTimeFormatter));
     			 System.out.println("hi");
+    			 if(count.getPeriod()!=null){
     			 if(count.getPeriod().contains("P1")||count.getPeriod().contains("P2")||count.getPeriod().contains("P3")||count.getPeriod().contains("P4")){
     			 count.setPeak("X");
     			 }else {
     				 count.setPeak("0");
-    			 }
+    			 }}
     			 count.setOptimumQty(new BigDecimal("500.00"));
     			 count.setSoldQty(new BigDecimal("100.00"));
-    			 count.setBeginningBOHQty(zinventory.get(0).getTotValuatedStck());
+    			 count.setBeginningBOHQty(zinventory.get(i).getTotValuatedStck());
     			 count.setScannedQty(new BigDecimal("1"));
     			 count.setForecastQty(new BigDecimal("100.00"));
-    			int projectedBOHQty = count.getScannedQty().intValue() - count.getForecastQty().intValue();
+    			int projectedBOHQty = count.getForecastQty().intValue()- count.getScannedQty().intValue();
     			 count.setProjectedBOHQty(new BigDecimal(projectedBOHQty));
     			 int projectedReqQunatity = count.getOptimumQty().intValue()-count.getProjectedBOHQty().intValue();
     			 count.setProjectedReqQty(new BigDecimal(projectedReqQunatity));
-    			 count.setReorderPt(zinventory.get(0).getMinSafetyStck());
+    			 count.setReorderPt(zinventory.get(i).getMinSafetyStck());
+    			 count.setUnitQty(zinventory.get(i).getUnitQty());
     			 count.setReplenIndicator("X");
     			 countRepo.save(count);
     			 listOfCount.add(count);
-    				}
     			 
-    			 return new ResponseEntity<List<Zcount>>(listOfCount, HttpStatus.OK);
+    			 System.err.println("count "+count);
+    				}
+    				 ResponseJson RJson=new ResponseJson();
+     		    	RJson.setMessage("Success !");
+    			 return new ResponseEntity<ResponseJson>(RJson, HttpStatus.OK);
     			 
     			 
     		 }else { 
     			 ResponseJson RJson=new ResponseJson();
     		    	RJson.setMessage("Not found !!");
-    		    	return new ResponseEntity<ResponseJson>(HttpStatus.OK);
+    		    	return new ResponseEntity<ResponseJson>( RJson ,HttpStatus.OK);
     		 
     		 }
     	 }else {
@@ -279,9 +286,15 @@ public void scheduledUpdateZcount(){
 	      	   });
 	    	  
 	    	   invRepo.saveAll(zInventory);
-	     return new ResponseEntity<List<Zcount>>(zcount,HttpStatus.OK);
+	    	   ResponseJson json = new ResponseJson();
+	    	   
+	    	   json.setMessage("Success");
+	     return new ResponseEntity<ResponseJson>(json,HttpStatus.OK);
 	     }	   
-	   return new ResponseEntity<String>("Article Number not found in Zcount",HttpStatus.OK);
+	     ResponseJson json = new ResponseJson();
+  	   
+  	   json.setMessage("Article Number not found in Zcount");
+	   return new ResponseEntity<ResponseJson>(json,HttpStatus.OK);
    }
    
    
@@ -526,16 +539,19 @@ public void scheduledUpdateZcount(){
 	}
    
    
-   public ResponseEntity<?> getItemDetailsOfForecast(String articleNumber, String plant , Date date){
+   // get item details for forecast
+   public ResponseEntity<?> getItemDetailsOfForecast(CountPayload  payload){
 	   
-	 List<Zcount> list =   countRepo.findByArticleNumberAndPlantAndDate(articleNumber, plant, date);
+	 List<Zcount> list =   countRepo.findByArticleNumberAndPlantAndDate(payload.getArticleNumber(),payload.getPlant(), payload.getDate());
+	 
+	 System.err.println( "list" + list);
 	 
 	 if(list != null && !list.isEmpty()){
 		 
 		 return new ResponseEntity<List<Zcount>>(list,HttpStatus.OK);
 	 }else {
 			ResponseJson responseJson =  new ResponseJson();
-			responseJson.setMessage("No Article Found In Zcount ! for "+"Date" +date );
+			responseJson.setMessage("No Article Found In Zcount ! for "+"Date" +payload.getDate());
 			return new ResponseEntity<ResponseJson>(responseJson,HttpStatus.OK);
 			}
 	 
