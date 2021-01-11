@@ -2,6 +2,7 @@ package com.incture.dos;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -71,6 +72,9 @@ public class Zinventory implements Serializable
 	
 	@Column(name = "UNIT_OF_CURRENCY")
 	private String unitCurrency;
+	
+	@Column(name = "ARTICLE_DATE")
+	private Date atricleDate;
 	
 	
 }

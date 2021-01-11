@@ -38,7 +38,7 @@ public class Zcount  implements Serializable
 	private String plant;
 	
 	@Column(name = "DATE")
-	private Date Date;
+	private Date date;
 	
 	@Id
 	@Column(name = "PERIOD")

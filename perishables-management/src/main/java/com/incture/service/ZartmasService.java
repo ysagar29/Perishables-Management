@@ -83,7 +83,7 @@ public class ZartmasService
 	
 	//item details
     @SuppressWarnings("deprecation")
-	public ResponseEntity<?> findProductDetailsAndUpdateZcount(String articleId,String plant,String storageLocation){
+	public ResponseEntity<?> findProductDetailsAndUpdateZcount(String articleId,String plant,String storageLocation,String period,Date date,String soldQuantityInLastPeriod){
     	
     	// find the articale or product details based on product id 
     	
@@ -107,8 +107,8 @@ public class ZartmasService
     			 count.setArticleNumber(articleId);
     			 count.setPlant(plant);
     			 count.setStorageLocation(storageLocation);
-    			 count.setDate(new Date());
-    			 count.setPeriod("P"+setPeriodBasedOnScannedDate(new Date()));
+    			 count.setDate(date);
+    			 count.setPeriod(period);
     			 LocalTime  localTime = LocalTime.now();
     			 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
     			 
@@ -151,6 +151,58 @@ public class ZartmasService
     	 
     	 //return new ResponseEntity<List<Zinventory>>(zinventory,HttpStatus.OK);
     }
+    
+    
+public void scheduledUpdateZcount(){
+	
+	
+	// find all the details of todays 
+	List<Zcount> listOfCount = new ArrayList<Zcount>();
+
+	List<Zinventory> listOfZinventory = invRepo.findAllByOrderByAtricleDateDsc();
+	 if(listOfZinventory != null || !listOfZinventory.isEmpty() ){
+		 
+			for(int i=0 ; i<listOfZinventory.size();i++) {
+		 // create a reccord in ZACTION table 
+		 Zcount count = new Zcount();
+	
+		 count.setArticleNumber(listOfZinventory.get(i).getArticleNumber());
+		 count.setPlant(listOfZinventory.get(i).getPlant());
+		 count.setStorageLocation(listOfZinventory.get(i).getStorageLoc());
+		 count.setDate(new Date());
+		 count.setPeriod("P"+setPeriodBasedOnScannedDate(new Date()));
+		 LocalTime  localTime = LocalTime.now();
+		 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
+		 
+		
+  	 count.setTime(localTime.format(dateTimeFormatter));
+		 System.out.println("hi");
+		 if(count.getPeriod().contains("P1")||count.getPeriod().contains("P2")||count.getPeriod().contains("P3")||count.getPeriod().contains("P4")){
+		 count.setPeak("X");
+		 }else {
+			 count.setPeak("0");
+		 }
+		 count.setOptimumQty(new BigDecimal("500.00"));
+		 count.setSoldQty(new BigDecimal("100.00"));
+		 count.setBeginningBOHQty(listOfZinventory.get(0).getTotValuatedStck());
+		 count.setScannedQty(new BigDecimal("1"));
+		 count.setForecastQty(new BigDecimal("100.00"));
+		int projectedBOHQty = count.getScannedQty().intValue() - count.getForecastQty().intValue();
+		 count.setProjectedBOHQty(new BigDecimal(projectedBOHQty));
+		 int projectedReqQunatity = count.getOptimumQty().intValue()-count.getProjectedBOHQty().intValue();
+		 count.setProjectedReqQty(new BigDecimal(projectedReqQunatity));
+		 count.setReorderPt(listOfZinventory.get(0).getMinSafetyStck());
+		 count.setReplenIndicator("X");
+		 countRepo.save(count);
+		 listOfCount.add(count);
+			}
+		 
+    	}
+    }
+    
+    
+    
+    
 	
     public static int setPeriodBasedOnScannedDate(Date scannedDate){
     	
@@ -168,6 +220,7 @@ public class ZartmasService
     	 //if scanned date is more than 6 than see the differenece in the value. 
    if(timePeriod.equals("AM")){
 	   if(currentHour==PersishableManagementConstants.initialPointOfPeriod){
+		   periodCounter = 1;
 		 return  PersishableManagementConstants.initialPeriodcounter;
 	   }
 	   else {
@@ -455,5 +508,21 @@ public class ZartmasService
 	       responseJson.setMessage("Not Found Article !");
 	       return new ResponseEntity<ResponseJson>(responseJson,HttpStatus.OK);
 	}
+   
+   
+   public ResponseEntity<?> getItemDetailsOfForecast(String articleNumber, String plant , Date date){
+	   
+	 List<Zcount> list =   countRepo.findByArticleNumberAndPlantAndDate(articleNumber, plant, date);
+	 
+	 if(list != null && !list.isEmpty()){
+		 
+		 return new ResponseEntity<List<Zcount>>(list,HttpStatus.OK);
+	 }else {
+			ResponseJson responseJson =  new ResponseJson();
+			responseJson.setMessage("No Article Found In Zcount ! for "+"Date" +date );
+			return new ResponseEntity<ResponseJson>(responseJson,HttpStatus.OK);
+			}
+	 
+   }
 
 }

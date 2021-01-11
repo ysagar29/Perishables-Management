@@ -1,5 +1,6 @@
 package com.incture.controllers;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -35,9 +36,9 @@ public class ZartmasController
 		services.saveOrUpdate(zartmas);
 	}
 
-	@GetMapping("/findById/{id}&{currentWeight}&{plant}&{storageLoc}")
-	public ResponseEntity<? > findById(@PathVariable String id, @PathVariable String currentWeight,@PathVariable String plant,@PathVariable String storageLoc) {
-		return services.findProductDetailsAndUpdateZcount(id,plant, storageLoc);
+	@PostMapping("/count/{articleNumber}&{plant}&{storageLoc}&{period}&{date}&{soldQtyInLastPeriod}")
+	public ResponseEntity<? > findById(@PathVariable String articleNumber,@PathVariable String plant,@PathVariable String storageLoc,@PathVariable String period,@PathVariable Date date,@PathVariable String soldQtyInLastPeriod) {
+		return services.findProductDetailsAndUpdateZcount(articleNumber,plant, storageLoc,period,date,soldQtyInLastPeriod);
 	}
 
 	@DeleteMapping("/deleteById/{id}")
@@ -50,11 +51,15 @@ public class ZartmasController
 		return services.listAll();
 	}
 	
-	@GetMapping("/caseFillUp/{articleNumber}&{plant}&{storageLocation}&{totalWeight}")
+	@PostMapping("/caseFillUp/{articleNumber}&{plant}&{storageLocation}&{totalWeight}")
 	public ResponseEntity<?> caseFillUp(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable String storageLocation,@PathVariable String totalWeight){
 		return services.caseFillUp(articleNumber, plant, storageLocation,totalWeight);
 	}
 	
+	@GetMapping("/getItemDetailsOfForecast/{articleNumber}&{plant}&{date}")
+	public ResponseEntity<?> foreCastDetails(@PathVariable String articleNumber , @PathVariable String plant ,@PathVariable Date date){
+		return services.getItemDetailsOfForecast(articleNumber,plant,date);
+	}
 	
     @Transactional
     @ResponseBody
