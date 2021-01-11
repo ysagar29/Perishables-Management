@@ -159,7 +159,8 @@ public void scheduledUpdateZcount(){
 	// find all the details of todays 
 	List<Zcount> listOfCount = new ArrayList<Zcount>();
 
-	List<Zinventory> listOfZinventory = invRepo.findAllByOrderByAtricleDateDsc();
+	List<Zinventory> listOfZinventory = null;
+			//invRepo.findAllByOrderByAtricleDateDsc();
 	 if(listOfZinventory != null || !listOfZinventory.isEmpty() ){
 		 
 			for(int i=0 ; i<listOfZinventory.size();i++) {
