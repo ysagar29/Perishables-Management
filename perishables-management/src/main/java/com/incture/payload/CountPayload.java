@@ -14,7 +14,7 @@ public class CountPayload {
 	private String totalWeight;
 	
      private  String period;
-   private   Date date;
+   private   String date;
   private    String soldQuantityInLastPeriod;
      
 	

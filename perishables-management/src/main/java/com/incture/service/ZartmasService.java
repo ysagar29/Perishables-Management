@@ -93,7 +93,7 @@ public class ZartmasService
     	String articleId=details.getArticleNumber();
         String plant=details.getPlant();
         String storageLocation=details.getStorageLocation();
-        Date date=details.getDate();
+        String date=details.getDate();
         String period=details.getPeriod();
         
         
@@ -118,7 +118,7 @@ public class ZartmasService
     			 count.setArticleNumber(articleId);
     			 count.setPlant(plant);
     			 count.setStorageLocation(storageLocation);
-    			 java.util.Date parsedDate = new SimpleDateFormat("yyyy-MM-dd").parse(date.toString());
+    			 java.util.Date parsedDate = new SimpleDateFormat("yyyy-MM-dd").parse(date);
     			 count.setDate(parsedDate);
     			 count.setPeriod(period);
     			 LocalTime  localTime = LocalTime.now();
@@ -146,6 +146,15 @@ public class ZartmasService
     			 count.setUnitQty(zinventory.get(i).getUnitQty());
     			 count.setReplenIndicator("X");
     			 countRepo.save(count);
+    			 
+    			 BigDecimal weight = new BigDecimal(details.getTotalWeight());
+    			 
+    			 BigDecimal salk3 = weight.multiply( zinventory.get(i).getStndPrice());
+    			 
+    			 zinventory.get(i).setValTotValuatedStck(salk3);
+    			 zinventory.get(i).setTotWeight(weight);
+    			// zinventory.get(i).setTotValuatedStck();
+    			 
     			 listOfCount.add(count);
     			 
     			 
