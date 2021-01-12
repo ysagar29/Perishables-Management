@@ -132,9 +132,9 @@ public class ZartmasService
     				 count.setPeak("0");
     			 }}
     			 count.setOptimumQty(new BigDecimal("500.00"));
-    			 count.setSoldQty(new BigDecimal("100.00"));
+    			 count.setSoldQty(new BigDecimal(details.getSoldQuantityInLastPeriod()));
     			 count.setBeginningBOHQty(zinventory.get(i).getTotValuatedStck());
-    			 count.setScannedQty(new BigDecimal("1"));
+    			 count.setScannedQty(new BigDecimal("10"));
     			 count.setForecastQty(new BigDecimal("100.00"));
     			int projectedBOHQty = count.getForecastQty().intValue()- count.getScannedQty().intValue();
     			 count.setProjectedBOHQty(new BigDecimal(projectedBOHQty));
@@ -145,6 +145,7 @@ public class ZartmasService
     			 count.setReplenIndicator("X");
     			 countRepo.save(count);
     			 listOfCount.add(count);
+    			 
     			 
     			 System.err.println("count "+count);
     				}
@@ -540,9 +541,9 @@ public void scheduledUpdateZcount(){
    
    
    // get item details for forecast
-   public ResponseEntity<?> getItemDetailsOfForecast(CountPayload  payload){
+   public ResponseEntity<?> getItemDetailsOfForecast(String articleNumber,String plant,Date date){
 	   
-	 List<Zcount> list =   countRepo.findByArticleNumberAndPlantAndDate(payload.getArticleNumber(),payload.getPlant(), payload.getDate());
+	 List<Zcount> list =   countRepo.findByArticleNumberAndPlantAndDate(articleNumber,plant,date);
 	 
 	 System.err.println( "list" + list);
 	 
@@ -551,7 +552,7 @@ public void scheduledUpdateZcount(){
 		 return new ResponseEntity<List<Zcount>>(list,HttpStatus.OK);
 	 }else {
 			ResponseJson responseJson =  new ResponseJson();
-			responseJson.setMessage("No Article Found In Zcount ! for "+"Date" +payload.getDate());
+			responseJson.setMessage("No Article Found In Zcount ! for "+"Date" +date);
 			return new ResponseEntity<ResponseJson>(responseJson,HttpStatus.OK);
 			}
 	 
