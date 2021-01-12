@@ -1,5 +1,10 @@
 package com.incture.controllers;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -39,7 +44,7 @@ public class ZartmasController
 	}
 
 	@PostMapping("/count")///{articleNumber}&{plant}&{storageLoc}&{period}&{date}&{soldQtyInLastPeriod}")
-	public ResponseEntity<? > findById(@RequestBody CountPayload details){//@PathVariable String articleNumber,@PathVariable String plant,@PathVariable String storageLoc,@PathVariable String period,@PathVariable Date date,@PathVariable String soldQtyInLastPeriod) {
+	public ResponseEntity<? > findById(@RequestBody CountPayload details) throws ParseException{//@PathVariable String articleNumber,@PathVariable String plant,@PathVariable String storageLoc,@PathVariable String period,@PathVariable Date date,@PathVariable String soldQtyInLastPeriod) {
 		return services.findProductDetailsAndUpdateZcount(details);//articleNumber,plant, storageLoc,period,date,soldQtyInLastPeriod);
 	}
 
@@ -59,8 +64,11 @@ public class ZartmasController
 	}
 	
 	@GetMapping("/getItemDetailsOfForecast/{articleNumber}&{plant}&{date}")
-	public ResponseEntity<?> foreCastDetails(@PathVariable String articleNumber , @PathVariable String plant,@PathVariable Date date){
-		return services.getItemDetailsOfForecast(articleNumber,plant,date);
+	public ResponseEntity<?> foreCastDetails(@PathVariable String articleNumber , @PathVariable String plant,@PathVariable String  date) throws ParseException{
+		
+		System.err.println("date "+date);
+		java.util.Date d = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+		return services.getItemDetailsOfForecast(articleNumber,plant,d);
 	}
 	
     @Transactional

@@ -1,6 +1,7 @@
 package com.incture.service;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -86,7 +87,7 @@ public class ZartmasService
 	// count service 
 	//item details
     @SuppressWarnings("deprecation")
-	public ResponseEntity<?> findProductDetailsAndUpdateZcount(CountPayload details) {//String articleId,String plant,String storageLocation,String period,Date date,String soldQuantityInLastPeriod){
+	public ResponseEntity<?> findProductDetailsAndUpdateZcount(CountPayload details) throws ParseException {//String articleId,String plant,String storageLocation,String period,Date date,String soldQuantityInLastPeriod){
     	
     	// find the articale or product details based on product id 
     	String articleId=details.getArticleNumber();
@@ -117,7 +118,8 @@ public class ZartmasService
     			 count.setArticleNumber(articleId);
     			 count.setPlant(plant);
     			 count.setStorageLocation(storageLocation);
-    			 count.setDate(date);
+    			 java.util.Date parsedDate = new SimpleDateFormat("yyyy-MM-dd").parse(date.toString());
+    			 count.setDate(parsedDate);
     			 count.setPeriod(period);
     			 LocalTime  localTime = LocalTime.now();
     			 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
@@ -188,7 +190,8 @@ public void scheduledUpdateZcount(){
 		 count.setArticleNumber(listOfZinventory.get(i).getArticleNumber());
 		 count.setPlant(listOfZinventory.get(i).getPlant());
 		 count.setStorageLocation(listOfZinventory.get(i).getStorageLoc());
-		 count.setDate(new Date());
+		 //java.util.Date d = new SimpleDateFormat("yyyy-MM-dd").parse(date.toString());
+		// count.setDate();
 		 count.setPeriod("P"+setPeriodBasedOnScannedDate(new Date()));
 		 LocalTime  localTime = LocalTime.now();
 		 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
@@ -225,7 +228,7 @@ public void scheduledUpdateZcount(){
 	
     public static int setPeriodBasedOnScannedDate(Date scannedDate){
     	
-    	SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy hh.mm.ss.S aa");
+    	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 		String formattedDate = dateFormat.format(scannedDate).toString();
 		System.err.println(formattedDate);
 	 System.err.println("scannedDate "+scannedDate);
