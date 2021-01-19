@@ -91,4 +91,9 @@ public class Zcount  implements Serializable
 	
 	@Column(name =  "REPLEN_REQ_QTY")
 	private int replenRequiredQuantity;
+	
+	@Column(name = "SCANNED_DATE")
+	private Date scannedDate;
+	
+	
 }

@@ -106,8 +106,12 @@ public class ZartmasService
     		 // check data present in zinventory table for the article
     		 List<Zinventory> zinventory = invRepo.findByArticleNumberAndPlantAndStorageLoc(articleId, plant, storageLocation);
     		 // if present than
-
+    		 java.util.Date parsedDate = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+    		 
+    		 Zcount countCheckForScannedQty =  countRepo.findByArticleNumberAndPlantAndSortedDate(articleId,plant, period, parsedDate);
     		
+    		 System.err.println("countCheckForScannedQty "+countCheckForScannedQty);
+    		 
     		 if(!zinventory.isEmpty()&& zinventory != null ){	
     			 
     			 System.err.println("zinventory "+zinventory);
@@ -118,8 +122,8 @@ public class ZartmasService
     			 count.setArticleNumber(articleId);
     			 count.setPlant(plant);
     			 count.setStorageLocation(storageLocation);
-    			 java.util.Date parsedDate = new SimpleDateFormat("yyyy-MM-dd").parse(date);
     			 count.setDate(parsedDate);
+    			 count.setScannedDate(new Date());
     			 count.setPeriod(period);
     			 LocalTime  localTime = LocalTime.now();
     			 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
@@ -136,9 +140,13 @@ public class ZartmasService
     			 count.setOptimumQty(new BigDecimal("500.00"));
     			 count.setSoldQty(new BigDecimal(details.getSoldQuantityInLastPeriod()));
     			 count.setBeginningBOHQty(zinventory.get(i).getTotValuatedStck());
-    			 count.setScannedQty(new BigDecimal("10"));
+    			 if(countCheckForScannedQty!=null ){
+    			 count.setScannedQty(countCheckForScannedQty.getScannedQty().add(new BigDecimal("1")));
+    			 }else {
+    				 count.setScannedQty(new BigDecimal("1")); 
+    			 }
     			 count.setForecastQty(new BigDecimal("100.00"));
-    			int projectedBOHQty = count.getForecastQty().intValue()- count.getScannedQty().intValue();
+    			int projectedBOHQty = count.getScannedQty().intValue()- count.getForecastQty().intValue();
     			 count.setProjectedBOHQty(new BigDecimal(projectedBOHQty));
     			 int projectedReqQunatity = count.getOptimumQty().intValue()-count.getProjectedBOHQty().intValue();
     			 count.setProjectedReqQty(new BigDecimal(projectedReqQunatity));
@@ -147,12 +155,12 @@ public class ZartmasService
     			 count.setReplenIndicator("X");
     			 countRepo.save(count);
     			 
-    			 BigDecimal weight = new BigDecimal(details.getTotalWeight());
+    			/* BigDecimal weight = new BigDecimal(details.getTotalWeight());
     			 
     			 BigDecimal salk3 = weight.multiply( zinventory.get(i).getStndPrice());
     			 
     			 zinventory.get(i).setValTotValuatedStck(salk3);
-    			 zinventory.get(i).setTotWeight(weight);
+    			 zinventory.get(i).setTotWeight(weight);*/
     			// zinventory.get(i).setTotValuatedStck();
     			 
     			 listOfCount.add(count);
