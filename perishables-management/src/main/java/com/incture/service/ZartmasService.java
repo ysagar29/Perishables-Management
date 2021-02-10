@@ -137,7 +137,7 @@ public class ZartmasService
     			 }else {
     				 count.setPeak("0");
     			 }}
-    			 count.setOptimumQty(new BigDecimal("500.00"));
+    			 count.setOptimumQty(new BigDecimal("100.00"));
     			 count.setSoldQty(new BigDecimal(details.getSoldQuantityInLastPeriod()));
     			 count.setBeginningBOHQty(zinventory.get(i).getTotValuatedStck());
     			 if(countCheckForScannedQty!=null ){
@@ -145,7 +145,7 @@ public class ZartmasService
     			 }else {
     				 count.setScannedQty(new BigDecimal("1")); 
     			 }
-    			 count.setForecastQty(new BigDecimal("100.00"));
+    			 count.setForecastQty(new BigDecimal("5.00"));
     			int projectedBOHQty = count.getScannedQty().intValue()- count.getForecastQty().intValue();
     			 count.setProjectedBOHQty(new BigDecimal(projectedBOHQty));
     			 int projectedReqQunatity = count.getOptimumQty().intValue()-count.getProjectedBOHQty().intValue();
@@ -445,11 +445,11 @@ public void scheduledUpdateZcount(){
   		     int minSafetyStckValue = minSafetyStck.intValue();
   			 
   			 if(totValuatedStckInteger>=minSafetyStckValue){
-  				categorydetailsresponse.setCriticalStckQtyCheck(true);
-  				categorydetailsresponse.setAvailableStckQtyCheck(false);
-  			 }else {
   				categorydetailsresponse.setCriticalStckQtyCheck(false);
   				categorydetailsresponse.setAvailableStckQtyCheck(true);
+  			 }else {
+  				categorydetailsresponse.setCriticalStckQtyCheck(true);
+  				categorydetailsresponse.setAvailableStckQtyCheck(false);
   			 }
   			
   			
