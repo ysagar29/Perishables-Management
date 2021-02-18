@@ -104,7 +104,7 @@ public class ZartmasService
     		 List<Zcount> listOfCount = new ArrayList<Zcount>();
     		 
     		 // check data present in zinventory table for the article
-    		 List<Zinventory> zinventory = invRepo.findByArticleNumberAndPlantAndStorageLoc(articleId, plant, storageLocation);
+    		 Zinventory zinventory = invRepo.findByArticleNumberAndPlantAndStorageLoc(articleId, plant, storageLocation);
     		 // if present than
     		 java.util.Date parsedDate = new SimpleDateFormat("yyyy-MM-dd").parse(date);
     		 
@@ -112,10 +112,23 @@ public class ZartmasService
     		
     		 System.err.println("countCheckForScannedQty "+countCheckForScannedQty);
     		 
-    		 if(!zinventory.isEmpty()&& zinventory != null ){	
+    		 if(zinventory != null ){	
     			 
     			 System.err.println("zinventory "+zinventory);
-    				for(int i=0 ; i<zinventory.size();i++) {
+    				
+    					
+
+    	    			 BigDecimal weightAfterCount = zinventory.getWeightPerUnit().multiply(new BigDecimal(details.getSoldQuantityInLastPeriod())).subtract(zinventory.getTotWeight());
+    	    			 zinventory.setTotWeight(weightAfterCount);
+
+    	    			 
+    	    			 BigDecimal salk3 = weightAfterCount.multiply( zinventory.getStndPrice());
+    	    			 
+    	    			 zinventory.setValTotValuatedStck(salk3);
+    	    			 zinventory.setTotValuatedStck(zinventory.getTotValuatedStck().subtract(new BigDecimal(details.getSoldQuantityInLastPeriod())));
+    	    Zinventory  updatedZinventory = new Zinventory();
+    	    updatedZinventory   =invRepo.save(zinventory);
+    	    			 
     			 // create a reccord in ZACTION table 
     			 Zcount count = new Zcount();
     		
@@ -139,7 +152,7 @@ public class ZartmasService
     			 }}
     			 count.setOptimumQty(new BigDecimal("100.00"));
     			 count.setSoldQty(new BigDecimal(details.getSoldQuantityInLastPeriod()));
-    			 count.setBeginningBOHQty(zinventory.get(i).getTotValuatedStck());
+    			 count.setBeginningBOHQty(updatedZinventory.getTotValuatedStck());
     			 if(countCheckForScannedQty!=null ){
     			 count.setScannedQty(countCheckForScannedQty.getScannedQty().add(new BigDecimal("1")));
     			 }else {
@@ -150,34 +163,23 @@ public class ZartmasService
     			 count.setProjectedBOHQty(new BigDecimal(projectedBOHQty));
     			 int projectedReqQunatity = count.getOptimumQty().intValue()-count.getProjectedBOHQty().intValue();
     			 count.setProjectedReqQty(new BigDecimal(projectedReqQunatity));
-    			 count.setReorderPt(zinventory.get(i).getMinSafetyStck());
-    			 count.setUnitQty(zinventory.get(i).getUnitQty());
-    			 count.setReplenIndicator("X");
+    			 count.setReorderPt(updatedZinventory.getMinSafetyStck());
+    			 count.setUnitQty(updatedZinventory.getUnitQty());
+    			 if(projectedReqQunatity < updatedZinventory.getMinSafetyStck().intValue()){
+    			 count.setReplenIndicator("0");
+    			 }else {
+    				 count.setReplenIndicator("X");
+    			 }
     			 countRepo.save(count);
-    			 
-    			/* BigDecimal weight = new BigDecimal(details.getTotalWeight());
-    			 
-    			 BigDecimal salk3 = weight.multiply( zinventory.get(i).getStndPrice());
-    			 
-    			 zinventory.get(i).setValTotValuatedStck(salk3);
-    			 zinventory.get(i).setTotWeight(weight);*/
-    			// zinventory.get(i).setTotValuatedStck();
-    			 
-    			 listOfCount.add(count);
-    			 
-    			 
     			 System.err.println("count "+count);
-    				}
     				 ResponseJson RJson=new ResponseJson();
      		    	RJson.setMessage("Success !");
+     		    	RJson.setCount(count);
     			 return new ResponseEntity<ResponseJson>(RJson, HttpStatus.OK);
-    			 
-    			 
     		 }else { 
     			 ResponseJson RJson=new ResponseJson();
     		    	RJson.setMessage("Not found !!");
     		    	return new ResponseEntity<ResponseJson>( RJson ,HttpStatus.OK);
-    		 
     		 }
     	 }else {
     		 ResponseJson RJson=new ResponseJson();
@@ -274,9 +276,9 @@ public void scheduledUpdateZcount(){
    public ResponseEntity<?> caseFillUp(CasefillUpPayload details)//String articleNumber , String plant ,String storageLocation,String totalWeight){
    {
 	   String articleNumber=details.getArticleNumber(); 
-	   String totalWeight=details.getTotalWeight();
 	   String plant =details.getPlant();
 	   String storageLocation=details.getStorageLocation();
+	   Zinventory zInventory = invRepo.findByArticleNumberAndPlantAndStorageLoc(articleNumber, plant, storageLocation);
 	   List <Zcount> zcount  = countRepo.findByarticleNumber(articleNumber);
 	     if(zcount != null && !zcount.isEmpty()){
 	    	 
@@ -284,29 +286,23 @@ public void scheduledUpdateZcount(){
 	    		 if(c.getPeriod().equals("P1")){
 	    			 c.setReplenRequiredQuantity(c.getProjectedReqQty().intValue()); 	
 	    		 }else {
-	    			if(c.getReplenIndicator().equals("0")){
-	    				
+	    			if(c.getReplenIndicator().equals("X")){
+	    				 zInventory.setTotValuatedStck(c.getProjectedReqQty());
 	    				 c.setReplenRequiredQuantity(c.getProjectedReqQty().intValue());
 	    			}
 	    		 }
 	    	 });
 	    	 countRepo.saveAll(zcount);
-	    	 
-	    	   List<Zinventory> zInventory = invRepo.findByArticleNumberAndPlantAndStorageLoc(articleNumber, plant, storageLocation);
-	      	   zInventory.stream().forEach(i ->{ 
-	      		   
-	      		 BigDecimal totalvaluatedstck=i.getTotValuatedStck();	
-	 	        i.setTotWeight(new BigDecimal(totalWeight)); //change weight
-	 	        BigDecimal newweight=i.getTotWeight();
-	 	        BigDecimal TotalValuatedStock=totalvaluatedstck.subtract(newweight);
-	 	    	i.setTotValuatedStck(TotalValuatedStock);//change total valuated stock
-	 	    	BigDecimal stndprice=i.getStndPrice();
-	 	    	BigDecimal Totalweight=i.getTotWeight();
-	 	    	BigDecimal valTotValuatedstock=stndprice.multiply(Totalweight);
-	 	    	i.setValTotValuatedStck(stndprice.multiply(Totalweight));
-	      	   });
+	      		 BigDecimal totalvaluatedstck=zInventory.getTotValuatedStck();	
+	      		zInventory.setTotWeight(zInventory.getWeightPerUnit().multiply(totalvaluatedstck)); //change weight
+	 	        BigDecimal newweight=zInventory.getTotWeight();
+	 	      //change total valuated stock
+	 	    	BigDecimal stndprice=zInventory.getStndPrice();
+	 	    	BigDecimal Totalweight=zInventory.getTotWeight();
+	 	    	zInventory.setValTotValuatedStck(stndprice.multiply(Totalweight));
+	      	  
 	    	  
-	    	   invRepo.saveAll(zInventory);
+	    	   invRepo.save(zInventory);
 	    	   ResponseJson json = new ResponseJson();
 	    	   
 	    	   json.setMessage("Success");
@@ -327,28 +323,27 @@ public void scheduledUpdateZcount(){
    String storageLocation=details.getStorageLoc();
     String weight=details.getTotWeight().toString();
     
-    List<Zinventory> inventoryList=  invRepo.findByArticleNumberAndPlantAndStorageLoc(articleNumber, plant, storageLocation);
-    if(inventoryList!= null && !inventoryList.isEmpty())
+    Zinventory inventoryList=  invRepo.findByArticleNumberAndPlantAndStorageLoc(articleNumber, plant, storageLocation);
+    if(inventoryList!= null)
     {
-    	    inventoryList.stream().forEach(i->{
+    	
     		//i.setTotWeight(new BigDecimal(weight));
-    	 	BigDecimal stndprice=i.getStndPrice();
-	    	BigDecimal totalweightToBeSubFromOriginalWeight =i.getWeightPerUnit().subtract(new BigDecimal(weight));
-	    	BigDecimal totalWeight = i.getTotWeight().subtract(totalweightToBeSubFromOriginalWeight);
-	    	i.setTotWeight(totalWeight);
-	    	BigDecimal valTotValuatedstock=stndprice.multiply(totalWeight);
-	    	i.setValTotValuatedStck(stndprice.multiply(totalWeight));
+    	 	BigDecimal stndprice=inventoryList.getStndPrice();
+	    	BigDecimal totalweightToBeSubFromOriginalWeight =inventoryList.getWeightPerUnit().subtract(new BigDecimal(weight));
+	    	BigDecimal totalWeight = inventoryList.getTotWeight().subtract(totalweightToBeSubFromOriginalWeight);
+	    	inventoryList.setTotWeight(totalWeight);
+	    	inventoryList.setValTotValuatedStck(stndprice.multiply(totalWeight));
 	    	
 	    	System.out.println("done!!");
-    	});	
-    	invRepo.saveAll(inventoryList);
+    
+    	invRepo.save(inventoryList);
 	    
 	    	System.err.println("check end ");
 	     //return new ResponseEntity<String>("Success in update of inventory upon repack",HttpStatus.OK);
 	    	ResponseJson RJson=new ResponseJson();
 	    	RJson.setMessage("Success");
 	    	
-	     	invRepo.saveAll(inventoryList);
+	     	invRepo.save(inventoryList);
 	    	return new ResponseEntity(RJson, HttpStatus.OK);
 	    }else {
 	    	
@@ -370,30 +365,29 @@ public void scheduledUpdateZcount(){
 	   String storageLocation=details.getStorageLoc();
 	    String weight=details.getTotWeight().toString();
 	   
-	   List<Zinventory> inventoryList=  invRepo.findByArticleNumberAndPlantAndStorageLoc(articleNumber, plant, storageLocation);
+	   Zinventory inventoryList=  invRepo.findByArticleNumberAndPlantAndStorageLoc(articleNumber, plant, storageLocation);
 	   
-	   if(inventoryList!= null && !inventoryList.isEmpty())
+	   if(inventoryList!= null )
 	    {
-	    	inventoryList.stream().forEach(i->{
-	    	BigDecimal totalvaluatedstck=i.getTotValuatedStck();	
+	    	
+	    	BigDecimal totalvaluatedstck=inventoryList.getTotValuatedStck();	
 	       //change weight
-	        BigDecimal newweight=i.getTotWeight().subtract( new BigDecimal(weight));
-	        i.setTotWeight(newweight);
+	        BigDecimal newweight=inventoryList.getTotWeight().subtract( new BigDecimal(weight));
+	        inventoryList.setTotWeight(newweight);
 	        BigDecimal TotalValuatedStock=totalvaluatedstck.subtract(new BigDecimal(1));
-	    	i.setTotValuatedStck(TotalValuatedStock);//change total valuated stock
-	    	BigDecimal stndprice=i.getStndPrice();
-	    	BigDecimal Totalweight=i.getTotWeight();
+	        inventoryList.setTotValuatedStck(TotalValuatedStock);//change total valuated stock
+	    	BigDecimal stndprice=inventoryList.getStndPrice();
+	    	BigDecimal Totalweight=inventoryList.getTotWeight();
 	    	//BigDecimal valTotValuatedstock=stndprice.multiply(Totalweight);
-	    	i.setValTotValuatedStck(stndprice.multiply(Totalweight));	 	   
+	    	inventoryList.setValTotValuatedStck(stndprice.multiply(Totalweight));	 	   
 	    	System.out.println("b");
 	    
-	    	});
 	    	
-	    	invRepo.saveAll(inventoryList);
+	    	
+	    	invRepo.save(inventoryList);
 	    	ResponseJson RJson=new ResponseJson();
 	    	RJson.setMessage("Success");
 	    	
-	     	invRepo.saveAll(inventoryList);
 	    	return new ResponseEntity(RJson, HttpStatus.OK);
 	    	
 	    }else {
